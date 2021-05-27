@@ -184,7 +184,7 @@ class LoginHelpers with ChangeNotifier
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(15, 8, 15, 15),
-            child: TextField(controller: passwordController, style: TextStyle(color: Colors.white),decoration: InputDecoration(hintText: 'Please enter your password', hintStyle: TextStyle(color: constColors.whiteColor, fontWeight: FontWeight.bold, fontSize: 15.0)),),
+            child: TextField(controller: passwordController, obscureText: true, style: TextStyle(color: Colors.white),decoration: InputDecoration(hintText: 'Please enter your password', hintStyle: TextStyle(color: constColors.whiteColor, fontWeight: FontWeight.bold, fontSize: 15.0)),),
           ),
           FloatingActionButton(backgroundColor: constColors.redColor,
             onPressed: ()
@@ -252,11 +252,11 @@ class LoginHelpers with ChangeNotifier
 
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-              child: TextField(controller: emailController, decoration: InputDecoration(hintText: 'Please enter your email ID', hintStyle: TextStyle(color: constColors.whiteColor, fontWeight: FontWeight.bold, fontSize: 16.0)),),
+              child: TextField(controller: emailController, style: TextStyle(color: constColors.whiteColor), decoration: InputDecoration(hintText: 'Please enter your email ID', hintStyle: TextStyle(color: constColors.whiteColor, fontWeight: FontWeight.bold, fontSize: 16.0)),),
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(15, 8, 15, 20),
-              child: TextField(controller: passwordController, decoration: InputDecoration(hintText: 'Please enter your password', hintStyle: TextStyle(color: constColors.whiteColor, fontWeight: FontWeight.bold, fontSize: 16.0)),),
+              child: TextField(controller: passwordController,  style: TextStyle(color: constColors.whiteColor),obscureText: true, decoration: InputDecoration(hintText: 'Please enter your password', hintStyle: TextStyle(color: constColors.whiteColor, fontWeight: FontWeight.bold, fontSize: 16.0)),),
             ),
             FloatingActionButton(backgroundColor: constColors.blueColor,
               onPressed: ()

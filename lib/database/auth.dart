@@ -76,6 +76,7 @@ class Authentication with ChangeNotifier {
   {
     return _auth.signOut();
   }
+
   Future signInWithGoogle() async {
     // Trigger the authentication flow
     final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();

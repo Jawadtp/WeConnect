@@ -7,6 +7,8 @@ import 'package:socialmedia/screens/Profile/profileHelpers.dart';
 import '../../database/firebaseops.dart';
 import '../../database/auth.dart';
 import 'dart:developer';
+import 'package:page_transition/page_transition.dart';
+import 'package:socialmedia/screens/login/login.dart';
 
 class Profile extends StatelessWidget {
   ConstantColors constColors  = ConstantColors();
@@ -26,10 +28,14 @@ class Profile extends StatelessWidget {
       [
         IconButton(
           icon: Icon(EvaIcons.logOutOutline),
-          color: constColors.greenColor,
+          color: constColors.redColor,
           onPressed: ()
           {
+            showDialog(context: context, builder: (BuildContext context)
+            {
+              return Provider.of<ProfileHelpers>(context, listen: false).logoutDialog(context);
 
+            });
           },
         ),
 
@@ -77,7 +83,13 @@ class Profile extends StatelessWidget {
                         log(snapshot.toString());
                         return Column(children:
                         [
-                          Provider.of<ProfileHelpers>(context, listen: true).HeaderProfile(context, snapshot),
+                          Provider.of<ProfileHelpers>(context, listen: false).HeaderProfile(context, snapshot),
+                          Provider.of<ProfileHelpers>(context, listen: false).customDivider(context),
+                          Provider.of<ProfileHelpers>(context, listen: false).middleProfile(context, snapshot),
+                          Provider.of<ProfileHelpers>(context, listen: false).lowerProfile(context, snapshot),
+
+
+
                         ],);
                       }
                   },
