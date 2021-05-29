@@ -131,7 +131,7 @@ class LoginHelpers with ChangeNotifier
           {
             SignInSheet(context);
 
-          }, child: Text('Sign in', style: TextStyle(color: constColors.redColor, fontSize: 18.0, fontWeight: FontWeight.bold),),)
+          }, child: Text('Sign Up', style: TextStyle(color: constColors.redColor, fontSize: 18.0, fontWeight: FontWeight.bold),),)
 
         ],),
       ],),

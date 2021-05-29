@@ -10,7 +10,8 @@ import 'screens/login/loginServices.dart';
 import 'screens/login/loginUtils.dart';
 import 'database/firebaseops.dart';
 import 'screens/Profile/profileHelpers.dart';
-
+import 'screens/Feed/feedHelpers.dart';
+import 'screens/Feed/feedUpload.dart';
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
@@ -25,7 +26,10 @@ class MyApp extends StatelessWidget
     return MultiProvider(child: MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(accentColor: constColors.blueColor,
-          canvasColor: constColors.transparent),
+          canvasColor: constColors.transparent,
+        hintColor: constColors.blueColor,
+        primaryColor: constColors.blueColor
+      ),
       home: SplashScreen(),
     ),
       providers:
@@ -37,6 +41,8 @@ class MyApp extends StatelessWidget
         ChangeNotifierProvider(create: (_) => FirebaseOperations()),
         ChangeNotifierProvider(create: (_) => HomeHelper()),
         ChangeNotifierProvider(create: (_) => ProfileHelpers()),
+        ChangeNotifierProvider(create: (_) => FeedHelpers()),
+        ChangeNotifierProvider(create: (_) => UploadPost()),
 
       ],
     );
