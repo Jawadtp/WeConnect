@@ -12,6 +12,7 @@ import 'package:provider/provider.dart';
 import 'package:socialmedia/constants/colors.dart';
 import 'package:socialmedia/database/auth.dart';
 import 'package:socialmedia/database/firebaseops.dart';
+import 'package:socialmedia/screens/Feed/LikesAndComments/LikesCommentFirebase.dart';
 import 'package:socialmedia/screens/Feed/feedUpload.dart';
 import 'dart:io';
 
@@ -82,6 +83,7 @@ class FeedHelpers with ChangeNotifier
               else return ListView.builder(
                   cacheExtent: MediaQuery.of(context).size.height*5,
                   itemCount: snapshot.data?.docs.length,
+
                   itemBuilder: (context, index)
                   {
                     return feedPost(snapshot.data!.docs[index], context);
@@ -93,6 +95,7 @@ class FeedHelpers with ChangeNotifier
 
   Widget feedPost(DocumentSnapshot snapshot, BuildContext context)
   {
+    log('doc id: ${snapshot.id}');
     return Container(
       margin: EdgeInsets.only(bottom: 15),
       child: Column(
@@ -141,16 +144,50 @@ class FeedHelpers with ChangeNotifier
 
           Row(children:
           [
-           IconButton(
-             onPressed: ()
-             {
+            Container(
+              height: 50,
+              width: 50,
+            //  color: constColors.yellowColor,
+              child: StreamBuilder<QuerySnapshot>(stream: Provider.of<LikesCommentsFirebase>(context, listen: false).hasUserLiked(context, snapshot.id), builder: (context, sshot)
+              {
+                if(sshot.connectionState==ConnectionState.waiting)
+                  return IconButton(onPressed: () {}, icon: Icon(FontAwesomeIcons.heart), color: constColors.whiteColor, iconSize: 25,);
+                else {
+                  if (sshot.data?.docs.length  == 0)
+                    return IconButton(
+                      onPressed: ()
+                      {
+                        Provider.of<LikesCommentsFirebase>(context, listen: false).likePost(context, snapshot.id);
+                      },
+                      icon: Icon(FontAwesomeIcons.heart),
+                      color: constColors.whiteColor,
+                      iconSize: 25,
+                    );
+                  else
+                    return IconButton(
+                      onPressed: () {
+                        Provider.of<LikesCommentsFirebase>(
+                            context, listen: false).removeLikePost(
+                            context, snapshot.id);
+                      },
+                      icon: Icon(FontAwesomeIcons.solidHeart),
+                      color: constColors.redColor,
+                      iconSize: 25,
+                    );
+                }
+              }),
+            ),
 
-             },
-             icon: Icon(FontAwesomeIcons.heart),
-             color: constColors.whiteColor,
-             iconSize: 25,
-           ),
-            Text('22', style: TextStyle(color: constColors.whiteColor, fontSize: 20)),
+
+
+            GestureDetector(
+                onTap: ()
+                {
+                  log('clicked xddd');
+                  displayAllLikes(context, snapshot.id);
+                },
+                child: Text('${snapshot.get('likes')}', style: TextStyle(color: constColors.whiteColor, fontSize: 20))),
+
 
             SizedBox(width: 18),
 
@@ -218,6 +255,60 @@ class FeedHelpers with ChangeNotifier
 
 
     );
+  }
+
+  displayAllLikes(BuildContext context, String postid)
+  {
+    return showModalBottomSheet(isScrollControlled: true, context: context, builder: (context)
+    {
+      return Container(
+            height:MediaQuery.of(context).size.height*0.6,
+            decoration: BoxDecoration(
+              color: constColors.blueGreyColor,
+              borderRadius: BorderRadius.only(topLeft: Radius.circular(25), topRight:Radius.circular(25))
+            ),
+            child: Column(
+              children: [
+                SizedBox(height: 12),
+                Container(width: MediaQuery.of(context).size.width*0.4, height: 2, color: Colors.white.withOpacity(0.4),),
+                SizedBox(height: 17),
+                Text('Likes', style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold)),
+                SizedBox(height: 20),
+
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 15),
+                  height: MediaQuery.of(context).size.height*0.5,
+                  child: StreamBuilder<QuerySnapshot>(stream: FirebaseFirestore.instance.collection("posts").doc(postid).collection("likes").snapshots(),
+                    builder: (context, snapshot)
+                    {
+                      if(snapshot.connectionState==ConnectionState.waiting) return Center(child: CircularProgressIndicator());
+                      else return ListView.builder(itemCount: snapshot.data?.docs.length,itemBuilder: (context, index)
+                      {
+                        return Container(
+                          child: Row(children:
+                          [
+                            CircleAvatar(radius: 18, backgroundImage: NetworkImage(snapshot.data?.docs[index].get('userimage'))),
+                            SizedBox(width: 12,),
+                            Text(
+                                snapshot.data?.docs[index].get('username'),
+                                style: TextStyle(
+                                    color: constColors.whiteColor,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 17
+                                )
+                            ),
+                            Spacer(),
+                            ElevatedButton(onPressed: (){}, child: Text('Follow',style: TextStyle(fontSize: 15),), ),
+                          ],),
+                        );
+                      });
+                    },
+                  ),
+                ),
+              ],
+            ),
+      );
+    });
   }
   selectUploadPost(BuildContext context)
   {
@@ -335,6 +426,7 @@ class FeedHelpers with ChangeNotifier
                     if(Provider.of<UploadPost>(context, listen: false).postURL==null) return;
                     Map<String, dynamic> m =
                     {
+
                       'postURL': '${Provider.of<UploadPost>(context, listen: false).postURL}',
                       'caption': captionController.text,
                       'userid': '${Provider.of<Authentication>(context, listen: false).getUserUid()}',
@@ -342,6 +434,8 @@ class FeedHelpers with ChangeNotifier
                       'userimage': '${Provider.of<FirebaseOperations>(context, listen: false).imageURL}',
                       'useremail': '${Provider.of<FirebaseOperations>(context, listen: false).email}',
                       'time': Timestamp.now(),
+                      'like':0,
+                      'comments':0
                     };
                     Provider.of<UploadPost>(context, listen: false).uploadPostToDB(m).whenComplete(()
                     {

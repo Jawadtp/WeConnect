@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:socialmedia/database/auth.dart';
+import 'package:socialmedia/screens/Feed/LikesAndComments/LikesCommentFirebase.dart';
 import 'package:socialmedia/screens/Home/homeHelpers.dart';
 import 'screens/splash.dart';
 import 'constants/colors.dart';
@@ -43,6 +44,7 @@ class MyApp extends StatelessWidget
         ChangeNotifierProvider(create: (_) => ProfileHelpers()),
         ChangeNotifierProvider(create: (_) => FeedHelpers()),
         ChangeNotifierProvider(create: (_) => UploadPost()),
+        ChangeNotifierProvider(create: (_) => LikesCommentsFirebase()),
 
       ],
     );
