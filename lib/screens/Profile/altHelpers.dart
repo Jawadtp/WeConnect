@@ -1,16 +1,14 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:socialmedia/constants/colors.dart';
 import 'package:provider/provider.dart';
 import 'package:page_transition/page_transition.dart';
-import 'package:socialmedia/database/firebaseops.dart';
 import '../../database/auth.dart';
 import '../login/login.dart';
 import 'dart:developer';
 
-class ProfileHelpers with ChangeNotifier
+class AltHelpers with ChangeNotifier
 {
   ConstantColors constColors = ConstantColors();
 
@@ -31,7 +29,7 @@ class ProfileHelpers with ChangeNotifier
             Container(
               height: 200,
               width: 160,
-          //    color: Colors.white,
+              //    color: Colors.white,
               child: Column(
                 children:
                 [
@@ -49,7 +47,7 @@ class ProfileHelpers with ChangeNotifier
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
-                        snapshot.data.get('username'),
+                      snapshot.data.get('username'),
                       style: TextStyle(
                           color: constColors.whiteColor,
                           fontWeight: FontWeight.bold,
@@ -82,7 +80,7 @@ class ProfileHelpers with ChangeNotifier
                             children:
                             [
                               Text(
-                            snapshot.data.get('followers').toString(),
+                                '0',
                                 style: TextStyle(
                                     color: constColors.whiteColor,
                                     fontWeight: FontWeight.bold,
@@ -115,7 +113,7 @@ class ProfileHelpers with ChangeNotifier
                             children:
                             [
                               Text(
-                            snapshot.data.get('following').toString(),
+                                '0',
                                 style: TextStyle(
                                     color: constColors.whiteColor,
                                     fontWeight: FontWeight.bold,
@@ -149,7 +147,7 @@ class ProfileHelpers with ChangeNotifier
                         children:
                         [
                           Text(
-                            snapshot.data.get('posts').toString(),
+                            '0',
                             style: TextStyle(
                                 color: constColors.whiteColor,
                                 fontWeight: FontWeight.bold,
@@ -186,44 +184,6 @@ class ProfileHelpers with ChangeNotifier
     );
   }
 
-  Widget followMessageButtons(context, snapshot)
-  {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 28),
-      child:
-      Row(children:
-      [
-        FutureBuilder(future: Provider.of<FirebaseOperations>(context, listen: false).isFollowing(context, snapshot.data.get('uid')),
-          builder: (context, sshot)
-          {
-            return MaterialButton(onPressed: ()     //Follow button
-            {
-
-              if(sshot.data==false)
-              {
-
-                Map<String, dynamic> userData =
-                {
-                  'username': snapshot.data.get('username'),
-                  'imageURL': snapshot.data.get('userimage'),
-                  'userid': snapshot.data.get('uid'),
-                  'email': snapshot.data.get('useremail'),
-                  'time': Timestamp.now()
-                };
-                Provider.of<FirebaseOperations>(context, listen: false)
-                    .followUser(context, userData['userid'], userData);
-
-              }
-            }, padding: EdgeInsets.symmetric(horizontal: 48), child: Text(sshot.data==false?'Follow':"Unfollow", style: TextStyle(color: Colors.white)), color: Colors.lightBlue);
-          }),
-
-
-        Spacer(),
-        MaterialButton(onPressed: () {}, padding: EdgeInsets.symmetric(horizontal: 45), child: Text('Message'), color: Colors.white)
-      ],
-      ),
-    );
-  }
 
   Widget middleProfile(context, dynamic snapshot)
   {
@@ -245,8 +205,8 @@ class ProfileHelpers with ChangeNotifier
             height: MediaQuery.of(context).size.height*0.1,
             width: MediaQuery.of(context).size.width*0.9,
             decoration: BoxDecoration(
-              color: constColors.darkColor.withOpacity(0.4),
-              borderRadius: BorderRadius.circular(10)
+                color: constColors.darkColor.withOpacity(0.4),
+                borderRadius: BorderRadius.circular(10)
             ),
           )
         ],
@@ -271,10 +231,10 @@ class ProfileHelpers with ChangeNotifier
     return AlertDialog(
       backgroundColor: constColors.darkColor,
       title: Text(
-          'Log out of WeConnect?',
-          style: TextStyle(color: constColors.whiteColor, fontWeight: FontWeight.bold, fontSize: 16),
+        'Log out of WeConnect?',
+        style: TextStyle(color: constColors.whiteColor, fontWeight: FontWeight.bold, fontSize: 16),
       ),
-      actions: 
+      actions:
       [
         MaterialButton(
           onPressed: ()
@@ -284,9 +244,9 @@ class ProfileHelpers with ChangeNotifier
           child: Text(
             'No',
             style: TextStyle(
-                color: constColors.whiteColor,
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
+              color: constColors.whiteColor,
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
 
             ),
           ),
@@ -312,76 +272,6 @@ class ProfileHelpers with ChangeNotifier
         ),
       ],
 
-    );
-  }
-}
-
-class FollowMessageButtons extends StatefulWidget
-{
-  var snapshot;
-  FollowMessageButtons({@required this.snapshot});
-  @override
-  _FollowButtonState createState() => _FollowButtonState();
-}
-
-class _FollowButtonState extends State<FollowMessageButtons>
-{
-  bool isFollowing=false;
-  @override
-  void initState()
-  {
-    Provider.of<FirebaseOperations>(context, listen: false).isFollowing(context, widget.snapshot.data.get('uid')).then((value)
-    {
-      setState(() {
-        isFollowing=value;
-      });
-    });
-    super.initState();
-  }
-  @override
-  Widget build(BuildContext context)
-  {
-
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 28),
-      child:
-      Row(children:
-      [
-
-          MaterialButton(onPressed: ()     //Follow button
-        {
-
-        if(isFollowing)
-        {
-          Provider.of<FirebaseOperations>(context, listen: false).unfollowUser(context, widget.snapshot.data.get('uid'));
-          setState(() {
-            isFollowing=false;
-          });
-        }
-
-        else {
-          Map<String, dynamic> userData =
-          {
-            'username': widget.snapshot.data.get('username'),
-            'imageURL': widget.snapshot.data.get('userimage'),
-            'userid': widget.snapshot.data.get('uid'),
-            'email': widget.snapshot.data.get('useremail'),
-            'time': Timestamp.now()
-          };
-          Provider.of<FirebaseOperations>(context, listen: false)
-              .followUser(context, userData['userid'], userData);
-          setState(() {
-            isFollowing=true;
-          });
-        }
-
-        }, padding: EdgeInsets.symmetric(horizontal: 48), child: Text(isFollowing?'Unfollow':'Follow', style: TextStyle(color: Colors.white)), color: Colors.lightBlue),
-
-
-        Spacer(),
-        MaterialButton(onPressed: () {}, padding: EdgeInsets.symmetric(horizontal: 45), child: Text('Message'), color: Colors.white)
-      ],
-      ),
     );
   }
 }

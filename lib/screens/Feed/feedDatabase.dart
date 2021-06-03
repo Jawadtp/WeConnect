@@ -6,6 +6,7 @@ import 'dart:developer';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
 import 'package:provider/provider.dart';
+import 'package:socialmedia/database/auth.dart';
 import 'package:socialmedia/database/firebaseops.dart';
 import 'package:socialmedia/screens/Feed/feedHelpers.dart';
 
@@ -54,8 +55,12 @@ class UploadPost with ChangeNotifier
 
   }
 
-  Future uploadPostToDB(Map<String, dynamic> m)
+  Future uploadPostToDB(context, Map<String, dynamic> m)
   {
+    FirebaseFirestore.instance.collection("users").doc(Provider.of<Authentication>(context, listen: false).getUserUid()).update(
+        {
+          'posts':FieldValue.increment(1)
+        });
     return FirebaseFirestore.instance.collection("posts").add(m).then((value)
     {
       log('Post added to Firestore successfully');
@@ -70,8 +75,12 @@ class UploadPost with ChangeNotifier
         });
   }
 
-  Future deletePost(String postid)
+  Future deletePost(context, String postid)
   {
+    FirebaseFirestore.instance.collection("users").doc(Provider.of<Authentication>(context, listen: false).getUserUid()).update(
+    {
+    'posts':FieldValue.increment(-1)
+    });
     return FirebaseFirestore.instance.collection("posts").doc(postid).delete();
   }
 }

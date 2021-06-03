@@ -64,6 +64,50 @@ class FirebaseOperations with ChangeNotifier
       notifyListeners();
     });
   }
+
+  Future followUser(BuildContext context, String friendid, Map<String, dynamic> frienddata)
+  {
+    FirebaseFirestore.instance.collection("users").doc(Provider.of<Authentication>(context, listen:false).getUserUid()).update(
+        {
+          'following':FieldValue.increment(1)
+        });
+    FirebaseFirestore.instance.collection("users").doc(friendid).update(
+    {
+    'followers':FieldValue.increment(1)
+    });
+    return FirebaseFirestore.instance.collection("users").doc(Provider.of<Authentication>(context, listen:false).getUserUid()).collection("following").doc(friendid).set(frienddata).whenComplete(()
+    {
+      Map<String, dynamic> m =
+      {
+        'username': Provider.of<FirebaseOperations>(context, listen:false).name,
+        'imageURL': Provider.of<FirebaseOperations>(context, listen:false).imageURL,
+        'userid': Provider.of<Authentication>(context, listen:false).getUserUid(),
+        'email': Provider.of<FirebaseOperations>(context, listen:false).email,
+        'time': Timestamp.now()
+      };
+      return FirebaseFirestore.instance.collection("users").doc(friendid).collection("followers").doc(Provider.of<Authentication>(context, listen:false).getUserUid()).set(m);
+    });
+  }
+
+  Future unfollowUser(BuildContext context, String friendid)
+  {
+    FirebaseFirestore.instance.collection("users").doc(Provider.of<Authentication>(context, listen:false).getUserUid()).update(
+        {
+          'following':FieldValue.increment(-1)
+        });
+    FirebaseFirestore.instance.collection("users").doc(friendid).update(
+        {
+          'followers':FieldValue.increment(-1)
+        });
+    return FirebaseFirestore.instance.collection("users").doc(Provider.of<Authentication>(context, listen:false).getUserUid()).collection("following").doc(friendid).delete().whenComplete(()
+    {
+      return FirebaseFirestore.instance.collection("users").doc(friendid).collection("followers").doc(Provider.of<Authentication>(context, listen:false).getUserUid()).delete();
+    });
+  }
   
-  
+  Future<bool> isFollowing(BuildContext context, String friendid) async
+  {
+   QuerySnapshot qs = await FirebaseFirestore.instance.collection("users").doc(Provider.of<Authentication>(context, listen:false).getUserUid()).collection("following").where('userid', isEqualTo: friendid).get();
+    return qs.docs.length==1;
+  }
 }

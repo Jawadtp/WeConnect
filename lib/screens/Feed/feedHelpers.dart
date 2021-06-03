@@ -14,8 +14,10 @@ import 'package:socialmedia/database/auth.dart';
 import 'package:socialmedia/database/firebaseops.dart';
 import 'package:socialmedia/screens/Feed/LikesAndComments/LikesCommentFirebase.dart';
 import 'package:socialmedia/screens/Feed/feedDatabase.dart';
+import 'package:socialmedia/screens/Profile/altProfile.dart';
 import 'dart:io';
 import 'package:timeago/timeago.dart' as timeago;
+import 'package:page_transition/page_transition.dart';
 
 class FeedHelpers with ChangeNotifier
 {
@@ -41,6 +43,7 @@ class FeedHelpers with ChangeNotifier
             icon: Icon(Icons.menu),
             onPressed: ()
             {
+
             }
         ),
         title: RichText(
@@ -118,15 +121,28 @@ class FeedHelpers with ChangeNotifier
             child: Row(
               children:
               [
-                CircleAvatar(radius: 18, backgroundImage: NetworkImage(snapshot.get('userimage'))),
+                GestureDetector(
+                    onTap: ()
+                    {
+                      Navigator.push(context, PageTransition(child: altProfile(userid:snapshot.get('userid')), type: PageTransitionType.leftToRight));
+
+                    },
+                    child: CircleAvatar(radius: 18, backgroundImage: NetworkImage(snapshot.get('userimage')))),
                 SizedBox(width: 8,),
-                Text(
-                    snapshot.get('username'),
-                    style: TextStyle(
-                        color: constColors.whiteColor,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 17
-                    )
+                GestureDetector(
+                  onTap: ()
+                  {
+                    Navigator.push(context, PageTransition(child: altProfile(userid:snapshot.get('userid')), type: PageTransitionType.leftToRight));
+
+                  },
+                  child: Text(
+                      snapshot.get('username'),
+                      style: TextStyle(
+                          color: constColors.whiteColor,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 17
+                      )
+                  ),
                 ),
                 Spacer(),
                 Provider.of<Authentication>(context, listen: false).getUserUid()!=snapshot.get('userid')?Container():
@@ -395,7 +411,7 @@ class FeedHelpers with ChangeNotifier
         MaterialButton(
           onPressed: ()
           {
-            Provider.of<UploadPost>(context, listen: false).deletePost(postid);
+            Provider.of<UploadPost>(context, listen: false).deletePost(context, postid);
             Navigator.pop(context);
             Navigator.pop(context);
 
@@ -447,15 +463,28 @@ class FeedHelpers with ChangeNotifier
                         return Container(
                           child: Row(children:
                           [
-                            CircleAvatar(radius: 18, backgroundImage: NetworkImage(snapshot.data?.docs[index].get('userimage'))),
+                            GestureDetector(
+                                onTap: ()
+                                {
+                                  Navigator.push(context, PageTransition(child: altProfile(userid:snapshot.data?.docs[index].id), type: PageTransitionType.leftToRight));
+
+                                },
+                                child: CircleAvatar(radius: 18, backgroundImage: NetworkImage(snapshot.data?.docs[index].get('userimage')))),
                             SizedBox(width: 12,),
-                            Text(
-                                snapshot.data?.docs[index].get('username'),
-                                style: TextStyle(
-                                    color: constColors.whiteColor,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 17
-                                )
+                            GestureDetector(
+                              onTap: ()
+                              {
+                                Navigator.push(context, PageTransition(child: altProfile(userid:snapshot.data?.docs[index].id), type: PageTransitionType.leftToRight));
+
+                              },
+                              child: Text(
+                                  snapshot.data?.docs[index].get('username'),
+                                  style: TextStyle(
+                                      color: constColors.whiteColor,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 17
+                                  )
+                              ),
                             ),
                             Spacer(),
                             ElevatedButton(onPressed: (){}, child: Text('Follow',style: TextStyle(fontSize: 15),), ),
@@ -508,7 +537,13 @@ class FeedHelpers with ChangeNotifier
                             child: Row(crossAxisAlignment: CrossAxisAlignment.start,
                               children:
                             [
-                              CircleAvatar(radius: 16, backgroundImage: NetworkImage(snapshot.data?.docs[index].get('imageURL'))),
+                              GestureDetector(
+                                  onTap: ()
+                                  {
+                                    Navigator.push(context, PageTransition(child: altProfile(userid:snapshot.data?.docs[index].get('uid')), type: PageTransitionType.leftToRight));
+
+                                  },
+                                  child: CircleAvatar(radius: 16, backgroundImage: NetworkImage(snapshot.data?.docs[index].get('imageURL')))),
                               SizedBox(width: 12,),
                               Container(
                                 width: MediaQuery.of(context).size.width*0.7,
@@ -774,7 +809,7 @@ class FeedHelpers with ChangeNotifier
                       'likes':0,
                       'comments':0
                     };
-                    Provider.of<UploadPost>(context, listen: false).uploadPostToDB(m).whenComplete(()
+                    Provider.of<UploadPost>(context, listen: false).uploadPostToDB(context, m).whenComplete(()
                     {
                       captionController.clear();
                       Navigator.pop(context);

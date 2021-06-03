@@ -202,8 +202,10 @@ class LoginHelpers with ChangeNotifier
                       'uid': Provider.of<Authentication>(context, listen: false).getUserUid(),
                       'username':usernameController.text,
                       'useremail':emailController.text,
-                      'userimage':Provider.of<LoginUtils>(context, listen: false).getAvatarURL()
-
+                      'userimage':Provider.of<LoginUtils>(context, listen: false).getAvatarURL(),
+                      'followers':0,
+                      'following':0,
+                      'posts':0,
                     };
                     Provider.of<FirebaseOperations>(context, listen: false).createUserCollection(context, data).whenComplete(()
                     {
