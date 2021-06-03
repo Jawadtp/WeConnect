@@ -61,4 +61,17 @@ class UploadPost with ChangeNotifier
       log('Post added to Firestore successfully');
     });
   }
+
+  Future updateCaption(String postid, String caption)
+  {
+    return FirebaseFirestore.instance.collection("posts").doc(postid).update(
+        {
+          'caption':caption
+        });
+  }
+
+  Future deletePost(String postid)
+  {
+    return FirebaseFirestore.instance.collection("posts").doc(postid).delete();
+  }
 }

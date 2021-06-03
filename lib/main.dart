@@ -12,7 +12,7 @@ import 'screens/login/loginUtils.dart';
 import 'database/firebaseops.dart';
 import 'screens/Profile/profileHelpers.dart';
 import 'screens/Feed/feedHelpers.dart';
-import 'screens/Feed/feedUpload.dart';
+import 'screens/Feed/feedDatabase.dart';
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();

@@ -13,14 +13,25 @@ import 'package:socialmedia/constants/colors.dart';
 import 'package:socialmedia/database/auth.dart';
 import 'package:socialmedia/database/firebaseops.dart';
 import 'package:socialmedia/screens/Feed/LikesAndComments/LikesCommentFirebase.dart';
-import 'package:socialmedia/screens/Feed/feedUpload.dart';
+import 'package:socialmedia/screens/Feed/feedDatabase.dart';
 import 'dart:io';
+import 'package:timeago/timeago.dart' as timeago;
 
 class FeedHelpers with ChangeNotifier
 {
 
   ConstantColors constColors = ConstantColors();
   TextEditingController captionController = new TextEditingController();
+  TextEditingController commentController = new TextEditingController();
+  TextEditingController captionEditController = TextEditingController();
+
+
+  getTimeAgo(Timestamp timeData)
+  {
+    DateTime dateTime = timeData.toDate();
+    return timeago.format(dateTime);
+  }
+
   feedAppBar(BuildContext context)
   {
     return AppBar(
@@ -30,7 +41,6 @@ class FeedHelpers with ChangeNotifier
             icon: Icon(Icons.menu),
             onPressed: ()
             {
-
             }
         ),
         title: RichText(
@@ -59,6 +69,7 @@ class FeedHelpers with ChangeNotifier
           icon: Icon(Icons.camera_alt, color: constColors.greenColor,),
           onPressed: ()
           {
+            captionController.clear();
             selectUploadPost(context);
           }
         )
@@ -95,9 +106,9 @@ class FeedHelpers with ChangeNotifier
 
   Widget feedPost(DocumentSnapshot snapshot, BuildContext context)
   {
-    log('doc id: ${snapshot.id}');
+
     return Container(
-      margin: EdgeInsets.only(bottom: 15),
+      margin: EdgeInsets.only(bottom: 18),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children:
@@ -122,7 +133,8 @@ class FeedHelpers with ChangeNotifier
                 IconButton(
                     onPressed: ()
                     {
-
+                      captionEditController.text=snapshot.get('caption');
+                      showPostOptions(context, snapshot.id, snapshot.get('caption'));
                     },
                     iconSize: 25,
                     color: constColors.whiteColor,
@@ -186,7 +198,7 @@ class FeedHelpers with ChangeNotifier
                   log('clicked xddd');
                   displayAllLikes(context, snapshot.id);
                 },
-                child: Text('${snapshot.get('likes')}', style: TextStyle(color: constColors.whiteColor, fontSize: 20))),
+                child: Text('${snapshot.get('likes')}', style: TextStyle(color: constColors.whiteColor, fontSize: 18))),
 
 
             SizedBox(width: 18),
@@ -194,16 +206,16 @@ class FeedHelpers with ChangeNotifier
             IconButton(
               onPressed: ()
               {
-
+                displayComments(context, snapshot.id);
               },
               icon: Icon(FontAwesomeIcons.comment),
               color: constColors.whiteColor,
               iconSize: 25,
             ),
-            Text('8', style: TextStyle(color: constColors.whiteColor, fontSize: 20)),
+            Text('${snapshot.get('comments')}', style: TextStyle(color: constColors.whiteColor, fontSize: 18)),
 
             SizedBox(width: 18),
-
+/*
             IconButton(
               onPressed: ()
               {
@@ -213,8 +225,8 @@ class FeedHelpers with ChangeNotifier
               color: constColors.whiteColor,
               iconSize: 23,
             ),
-            Text('8', style: TextStyle(color: constColors.whiteColor, fontSize: 20)),
-
+            Text('8', style: TextStyle(color: constColors.whiteColor, fontSize: 18)),
+*/
           ],),
 
           Container(
@@ -243,7 +255,7 @@ class FeedHelpers with ChangeNotifier
           Container(
             padding: EdgeInsets.only(left: 15),
             child: Text(
-                '2 HOURS AGO',
+                getTimeAgo(snapshot.get('time')),
                 style: TextStyle(
                     color: constColors.whiteColor.withOpacity(0.4),
                     fontSize: 12
@@ -256,6 +268,154 @@ class FeedHelpers with ChangeNotifier
 
     );
   }
+
+  showPostOptions(BuildContext context, String postid, String caption)
+  {
+    return showModalBottomSheet(isScrollControlled: true, context: context, builder: (context)
+    {
+   //   if(captionEditController.text.isEmpty) captionEditController.text = caption;
+      return Padding(
+        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+        child: Container(
+            height:MediaQuery.of(context).size.height*0.35,
+            decoration: BoxDecoration(
+            color: constColors.blueGreyColor,
+            borderRadius: BorderRadius.only(topLeft: Radius.circular(25), topRight:Radius.circular(25))
+            ),
+            child: Container(
+              padding: EdgeInsets.fromLTRB(25, 15, 0, 25),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start,
+                children:
+                [
+                  Center(child: Container(width: MediaQuery.of(context).size.width*0.4, height: 2, color: Colors.white.withOpacity(0.4),)),
+                  SizedBox(height: 30),
+                  Text('Update caption', style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold)),
+                  SizedBox(height: 8),
+                  Container(
+                    width: MediaQuery.of(context).size.width,
+                    child: Row(
+                      children: [
+                        Container(
+                          margin: EdgeInsets.only(left: 0),
+                          height: 100,
+                          width: 5,
+                          color: constColors.blueColor,
+
+                        ),
+                        SizedBox(width: 10),
+                        Container(
+                            width: MediaQuery.of(context).size.width*0.86,
+                            child: TextField(
+                                controller: captionEditController,
+                                style: TextStyle(color: constColors.lightBlueColor),
+                                inputFormatters:
+                                [
+                                  LengthLimitingTextInputFormatter(100)
+                                ],
+                                maxLengthEnforcement: MaxLengthEnforcement.enforced,
+                                decoration: InputDecoration(
+
+                                    border: InputBorder.none,
+                                    hintText: 'Post a caption..',
+                                    hintStyle: TextStyle(
+                                        color: constColors.whiteColor,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold
+                                    )
+
+                                ),
+                                maxLines: 5
+                            )
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 13,),
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 30),
+                    child: Row(
+                      children:
+                    [
+                      MaterialButton(
+                          onPressed: ()
+                          {
+                            Provider.of<UploadPost>(context, listen: false).updateCaption(postid, captionEditController.text);
+                            Navigator.pop(context);
+                            captionEditController.clear();
+                          },
+                          child: Text("Update", style: TextStyle(color: Colors.white, fontSize: 15)), color: Colors.lightBlue),
+                      Spacer(),
+                      MaterialButton(
+                        onPressed: ()
+                        {
+                          showDialog(context: context, builder: (BuildContext context)
+                          {
+                            return deleteConfirmDialog(context, postid);
+                          });
+
+                        },
+                        child: Text("Delete Post", style: TextStyle(color: Colors.white, fontSize: 15)), color: Colors.red,),
+
+                    ],),
+                  )
+                ],
+            ),
+          ),
+        ),
+      );
+    });
+  }
+
+  deleteConfirmDialog(BuildContext context, String postid)
+  {
+
+    return AlertDialog(
+      backgroundColor: constColors.darkColor,
+      title: Text(
+        'Delete this post? This action cannot be reversed.',
+        style: TextStyle(color: constColors.whiteColor, fontWeight: FontWeight.bold, fontSize: 16),
+      ),
+      actions:
+      [
+        MaterialButton(
+          onPressed: ()
+          {
+            Navigator.pop(context);
+          },
+          child: Text(
+            'No',
+            style: TextStyle(
+              color: constColors.whiteColor,
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+
+            ),
+          ),
+        ),
+        MaterialButton(
+          onPressed: ()
+          {
+            Provider.of<UploadPost>(context, listen: false).deletePost(postid);
+            Navigator.pop(context);
+            Navigator.pop(context);
+
+          },
+          child: Text(
+            'Yes',
+            style: TextStyle(
+              color: constColors.redColor,
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+
+            ),
+          ),
+        ),
+      ],
+
+    );
+  }
+
+
 
   displayAllLikes(BuildContext context, String postid)
   {
@@ -278,7 +438,7 @@ class FeedHelpers with ChangeNotifier
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 15),
                   height: MediaQuery.of(context).size.height*0.5,
-                  child: StreamBuilder<QuerySnapshot>(stream: FirebaseFirestore.instance.collection("posts").doc(postid).collection("likes").snapshots(),
+                  child: StreamBuilder<QuerySnapshot>(stream: FirebaseFirestore.instance.collection("posts").doc(postid).collection("likes").orderBy('time', descending: true).snapshots(),
                     builder: (context, snapshot)
                     {
                       if(snapshot.connectionState==ConnectionState.waiting) return Center(child: CircularProgressIndicator());
@@ -310,6 +470,181 @@ class FeedHelpers with ChangeNotifier
       );
     });
   }
+
+  displayComments(BuildContext context, String postid)
+  {
+    return showModalBottomSheet(isScrollControlled: true, context: context, builder: (context)
+    {
+      return Padding(
+        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+        child: Container(
+
+            height:MediaQuery.of(context).size.height*0.6,
+            decoration: BoxDecoration(
+                color: constColors.blueGreyColor,
+                borderRadius: BorderRadius.only(topLeft: Radius.circular(25), topRight:Radius.circular(25))
+            ),
+            child: Column(
+                children:
+                [
+                  SizedBox(height: 12),
+                  Container(width: MediaQuery.of(context).size.width*0.4, height: 2, color: Colors.white.withOpacity(0.4),),
+                  SizedBox(height: 17),
+                  Text('Comments', style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold)),
+                  SizedBox(height: 20),
+
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 0),
+                    height: MediaQuery.of(context).size.height*0.43,
+                    child: StreamBuilder<QuerySnapshot>(stream: FirebaseFirestore.instance.collection("posts").doc(postid).collection("comments").orderBy('time', descending: true).snapshots(),
+                      builder: (context, snapshot)
+                      {
+                        if(snapshot.connectionState==ConnectionState.waiting) return Center(child: CircularProgressIndicator());
+                        else return ListView.builder(itemCount: snapshot.data?.docs.length,itemBuilder: (context, index)
+                        {
+                          return Container(
+                            margin: EdgeInsets.only(bottom: 20),
+                            padding: EdgeInsets.only(left: 15),
+                            child: Row(crossAxisAlignment: CrossAxisAlignment.start,
+                              children:
+                            [
+                              CircleAvatar(radius: 16, backgroundImage: NetworkImage(snapshot.data?.docs[index].get('imageURL'))),
+                              SizedBox(width: 12,),
+                              Container(
+                                width: MediaQuery.of(context).size.width*0.7,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    RichText(
+                                      text:  TextSpan(
+                                        style:  TextStyle(
+                                          fontSize: 16.0,
+                                          color: Colors.white,
+                                        ),
+                                        children: <TextSpan>
+                                        [
+                                          TextSpan(
+                                              text: '${snapshot.data?.docs[index].get('username')} ', style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+
+                                          )),
+                                          TextSpan(
+                                              text: snapshot.data?.docs[index].get('comment')
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    SizedBox(height: 5),
+                                    Container(
+
+                                      child: Row(children:
+                                      [
+                                        Text(getTimeAgo(snapshot.data?.docs[index].get('time')), style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 14 )),
+                                        SizedBox(width: 10),
+                                        Text('${snapshot.data?.docs[index].get('likes')} ${snapshot.data?.docs[index].get('likes')>1?'likes':'like'}', style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 14 )),
+                                      ],),
+                                    )
+                                  ],
+                                ),
+                              ),
+                              Spacer(),
+                              /*
+                              IconButton(
+                                onPressed: ()
+                                {
+                                  Provider.of<LikesCommentsFirebase>(context, listen: false).likeComment(context, postid, '${snapshot.data?.docs[index].id}');
+                                },
+                                icon: Icon(FontAwesomeIcons.heart),
+                                iconSize: 15,
+                              ),
+                              */
+
+                              StreamBuilder<QuerySnapshot>(stream: Provider.of<LikesCommentsFirebase>(context, listen: false).hasUserLikedComment(context, postid, '${snapshot.data?.docs[index].id}'), builder: (context, sshot)
+                              {
+                                if(sshot.connectionState==ConnectionState.waiting)
+                                  return IconButton(onPressed: () {}, icon: Icon(FontAwesomeIcons.heart), color: constColors.whiteColor, iconSize: 15,);
+                                else {
+                                  if (sshot.data?.docs.length  == 0)
+                                    return IconButton(
+                                      onPressed: ()
+                                      {
+                                        Provider.of<LikesCommentsFirebase>(context, listen: false).likeComment(context, postid, '${snapshot.data?.docs[index].id}');
+                                      },
+                                      icon: Icon(FontAwesomeIcons.heart),
+                                      iconSize: 15,
+                                      color: constColors.whiteColor,
+                                    );
+                                  else
+                                    return IconButton(
+                                      onPressed: ()
+                                      {
+                                        Provider.of<LikesCommentsFirebase>(context, listen: false).removeLikeComment(context, postid, '${snapshot.data?.docs[index].id}');
+                                      },
+                                      icon: Icon(FontAwesomeIcons.solidHeart),
+                                      iconSize: 15,
+                                      color: constColors.redColor,
+                                    );
+                                }
+                              }),
+
+
+
+                            ],),
+                          );
+                        });
+                      },
+                    ),
+                  ),
+
+                  Container(
+                    padding: EdgeInsets.fromLTRB(12,0,0,0),
+                    child: Row(
+                      children: [
+                       CircleAvatar(radius: 17, backgroundImage: NetworkImage(Provider.of<FirebaseOperations>(context, listen: false).imageURL)),
+                        SizedBox(width: 10),
+                        Container(
+                          width: MediaQuery.of(context).size.width*0.68,
+                          child: TextField(
+                              controller: commentController,
+                              style: TextStyle(color: constColors.lightBlueColor),
+                              inputFormatters:
+                              [
+                                LengthLimitingTextInputFormatter(100)
+                              ],
+                              maxLengthEnforcement: MaxLengthEnforcement.enforced,
+                              decoration: InputDecoration(
+
+                                  border: InputBorder.none,
+                                  hintText: 'Add a comment..',
+                                  hintStyle: TextStyle(
+                                      color: constColors.whiteColor,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold
+                                  )
+
+                              ),
+                              maxLines: 1
+                          ),
+                        ),
+                        TextButton(
+                            onPressed: ()
+                            {
+
+                              Provider.of<LikesCommentsFirebase>(context, listen: false).postComment(context, postid, commentController.text);
+                              commentController.clear();
+                              },
+                            child: Text('Post'))
+                      ],
+                    ),
+                  )
+
+                ]
+            )
+        ),
+      );
+    });
+  }
+
   selectUploadPost(BuildContext context)
   {
     return showModalBottomSheet(context: context, builder: (context)
@@ -344,6 +679,8 @@ class FeedHelpers with ChangeNotifier
       );
     });
   }
+
+
   uploadPostDisplay(BuildContext context)
   {
     return showModalBottomSheet(context: context, isScrollControlled: true, builder: (context)
@@ -434,11 +771,12 @@ class FeedHelpers with ChangeNotifier
                       'userimage': '${Provider.of<FirebaseOperations>(context, listen: false).imageURL}',
                       'useremail': '${Provider.of<FirebaseOperations>(context, listen: false).email}',
                       'time': Timestamp.now(),
-                      'like':0,
+                      'likes':0,
                       'comments':0
                     };
                     Provider.of<UploadPost>(context, listen: false).uploadPostToDB(m).whenComplete(()
                     {
+                      captionController.clear();
                       Navigator.pop(context);
                     });
                   });
@@ -452,3 +790,5 @@ class FeedHelpers with ChangeNotifier
 
   }
 }
+
+
