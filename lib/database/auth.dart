@@ -30,6 +30,7 @@ class Authentication with ChangeNotifier {
    }).onError((error, stackTrace)
    {
      log(error.toString());
+     userUid=null;
    });
 
 
@@ -74,6 +75,7 @@ class Authentication with ChangeNotifier {
 
   Future emailLogOut()
   {
+    userUid=null;
     return _auth.signOut();
   }
 

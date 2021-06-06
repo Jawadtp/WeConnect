@@ -65,8 +65,10 @@ class altProfile extends StatelessWidget
                     //  Provider.of<ProfileHelpers>(context, listen: false).customDivider(context),
                       userid==Provider.of<Authentication>(context, listen: false).getUserUid()?Container():
                       FollowMessageButtons(snapshot: snapshot),
+                      Provider.of<ProfileHelpers>(context, listen: false).userDescription(context, snapshot),
+
                       //  Provider.of<ProfileHelpers>(context, listen: false).followMessageButtons(context, snapshot),
-                      Provider.of<ProfileHelpers>(context, listen: false).middleProfile(context, snapshot),
+                    //  Provider.of<ProfileHelpers>(context, listen: false).middleProfile(context, snapshot),
                       Provider.of<ProfileHelpers>(context, listen: false).lowerProfile(context, snapshot),
 
 

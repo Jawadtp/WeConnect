@@ -81,11 +81,14 @@ class Profile extends StatelessWidget {
                     else
                       {
                         log(snapshot.toString());
-                        return Column(children:
+                        return Column(crossAxisAlignment: CrossAxisAlignment.start,
+                          children:
                         [
                           Provider.of<ProfileHelpers>(context, listen: false).HeaderProfile(context, snapshot),
+                          Provider.of<ProfileHelpers>(context, listen: false).userDescription(context, snapshot),
+
                           Provider.of<ProfileHelpers>(context, listen: false).customDivider(context),
-                          Provider.of<ProfileHelpers>(context, listen: false).middleProfile(context, snapshot),
+                         // Provider.of<ProfileHelpers>(context, listen: false).middleProfile(context, snapshot),
                           Provider.of<ProfileHelpers>(context, listen: false).lowerProfile(context, snapshot),
 
 

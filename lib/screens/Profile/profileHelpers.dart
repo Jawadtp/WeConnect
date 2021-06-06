@@ -10,6 +10,8 @@ import '../../database/auth.dart';
 import '../login/login.dart';
 import 'dart:developer';
 
+import 'altProfile.dart';
+
 class ProfileHelpers with ChangeNotifier
 {
   ConstantColors constColors = ConstantColors();
@@ -68,69 +70,81 @@ class ProfileHelpers with ChangeNotifier
                     children:
                     [
 
-                      Container(
-                        decoration: BoxDecoration(
-                          color: constColors.darkColor,
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        height: 70,
-                        width: 80,
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
+                      GestureDetector(
+                        onTap: ()
+                        {
+                          showFollowersOrFollowing('followers',context, snapshot.data.get('userid'));
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: constColors.darkColor,
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          height: 70,
+                          width: 80,
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
 
-                            children:
-                            [
-                              Text(
-                            snapshot.data.get('followers').toString(),
-                                style: TextStyle(
-                                    color: constColors.whiteColor,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 28
+                              children:
+                              [
+                                Text(
+                              snapshot.data.get('followers').toString(),
+                                  style: TextStyle(
+                                      color: constColors.whiteColor,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 28
+                                  ),
                                 ),
-                              ),
-                              Text(
-                                'Followers',
-                                style: TextStyle(
-                                    color: constColors.whiteColor,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 12
+                                Text(
+                                  'Followers',
+                                  style: TextStyle(
+                                      color: constColors.whiteColor,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 12
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ),
                       SizedBox(width: 10,),
-                      Container(
-                        height: 70,
-                        width: 80,
-                        decoration: BoxDecoration(
-                          color: constColors.darkColor,
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            children:
-                            [
-                              Text(
-                            snapshot.data.get('following').toString(),
-                                style: TextStyle(
-                                    color: constColors.whiteColor,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 28
+                      GestureDetector(
+                        onTap: ()
+                        {
+                          showFollowersOrFollowing('following', context,  snapshot.data.get('userid'));
+                        },
+                        child: Container(
+                          height: 70,
+                          width: 80,
+                          decoration: BoxDecoration(
+                            color: constColors.darkColor,
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
+                              children:
+                              [
+                                Text(
+                              snapshot.data.get('following').toString(),
+                                  style: TextStyle(
+                                      color: constColors.whiteColor,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 28
+                                  ),
                                 ),
-                              ),
-                              Text(
-                                'Following',
-                                style: TextStyle(
-                                    color: constColors.whiteColor,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 12
+                                Text(
+                                  'Following',
+                                  style: TextStyle(
+                                      color: constColors.whiteColor,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 12
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -186,42 +200,79 @@ class ProfileHelpers with ChangeNotifier
     );
   }
 
-  Widget followMessageButtons(context, snapshot)
+  showFollowersOrFollowing(String type, context, userid)
+  {
+    return showModalBottomSheet(isScrollControlled: true, context: context, builder: (context)
+    {
+      return Container(
+        height:MediaQuery.of(context).size.height*0.6,
+        decoration: BoxDecoration(
+            color: constColors.blueGreyColor,
+            borderRadius: BorderRadius.only(topLeft: Radius.circular(25), topRight:Radius.circular(25))
+        ),
+        child: Column(
+          children: [
+            SizedBox(height: 12),
+            Container(width: MediaQuery.of(context).size.width*0.4, height: 2, color: Colors.white.withOpacity(0.4),),
+            SizedBox(height: 17),
+            Text('Followers', style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold)),
+            SizedBox(height: 20),
+
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 15),
+              height: MediaQuery.of(context).size.height*0.5,
+              child: StreamBuilder<QuerySnapshot>(stream: FirebaseFirestore.instance.collection("users").doc(userid).collection(type=='followers'?'followers':'following').orderBy('time', descending: true).snapshots(),
+                builder: (context, snapshot)
+                {
+                  if(snapshot.connectionState==ConnectionState.waiting) return Center(child: CircularProgressIndicator());
+                  else return ListView.builder(itemCount: snapshot.data?.docs.length,itemBuilder: (context, index)
+                  {
+                    return Container(
+                      child: Row(children:
+                      [
+                        GestureDetector(
+                            onTap: ()
+                            {
+                              Navigator.push(context, PageTransition(child: altProfile(userid:snapshot.data?.docs[index].id), type: PageTransitionType.leftToRight));
+
+                            },
+                            child: CircleAvatar(radius: 18, backgroundImage: NetworkImage(snapshot.data?.docs[index].get('imageURL')))),
+                        SizedBox(width: 12,),
+                        GestureDetector(
+                          onTap: ()
+                          {
+                            Navigator.push(context, PageTransition(child: altProfile(userid:snapshot.data?.docs[index].id), type: PageTransitionType.leftToRight));
+
+                          },
+                          child: Text(
+                              snapshot.data?.docs[index].get('username'),
+                              style: TextStyle(
+                                  color: constColors.whiteColor,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 17
+                              )
+                          ),
+                        ),
+                        Spacer(),
+                     //   FollowMessageButtons(snapshot: snapshot)
+                      ],),
+
+
+                    );
+                  });
+                },
+              ),
+            ),
+          ],
+        ),
+      );
+    });
+  }
+  Widget userDescription(context, dynamic snapshot)
   {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 28),
-      child:
-      Row(children:
-      [
-        FutureBuilder(future: Provider.of<FirebaseOperations>(context, listen: false).isFollowing(context, snapshot.data.get('uid')),
-          builder: (context, sshot)
-          {
-            return MaterialButton(onPressed: ()     //Follow button
-            {
-
-              if(sshot.data==false)
-              {
-
-                Map<String, dynamic> userData =
-                {
-                  'username': snapshot.data.get('username'),
-                  'imageURL': snapshot.data.get('userimage'),
-                  'userid': snapshot.data.get('uid'),
-                  'email': snapshot.data.get('useremail'),
-                  'time': Timestamp.now()
-                };
-                Provider.of<FirebaseOperations>(context, listen: false)
-                    .followUser(context, userData['userid'], userData);
-
-              }
-            }, padding: EdgeInsets.symmetric(horizontal: 48), child: Text(sshot.data==false?'Follow':"Unfollow", style: TextStyle(color: Colors.white)), color: Colors.lightBlue);
-          }),
-
-
-        Spacer(),
-        MaterialButton(onPressed: () {}, padding: EdgeInsets.symmetric(horizontal: 45), child: Text('Message'), color: Colors.white)
-      ],
-      ),
+      padding: EdgeInsets.symmetric(horizontal: 0, vertical: 10),
+      child: Text(snapshot.data.get('description')),
     );
   }
 
@@ -259,12 +310,53 @@ class ProfileHelpers with ChangeNotifier
       height: MediaQuery.of(context).size.height*0.5,
       width: MediaQuery.of(context).size.width*0.9,
       decoration: BoxDecoration(
-          color: constColors.darkColor.withOpacity(0.4),
+        //  color: constColors.darkColor.withOpacity(0.4),
           borderRadius: BorderRadius.circular(10)
       ),
+      child: StreamBuilder<QuerySnapshot>(stream: FirebaseFirestore.instance.collection("posts").where('userid', isEqualTo: snapshot.data.get('userid')).snapshots(),
+  builder: (context, sshot)
+    {
+      if(sshot.connectionState==ConnectionState.waiting) return Center(child: CircularProgressIndicator());
+      else return GridView.builder(
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
+          itemCount: sshot.data?.docs.length,
+          padding:  EdgeInsets.all(0),
+          itemBuilder: (BuildContext context, int index)
+          {
+            return Container(
+              padding: EdgeInsets.all(2),
+              margin: EdgeInsets.only(top: 0),
+              height: MediaQuery.of(context).size.height*0.6,
+              width: MediaQuery.of(context).size.width,
+              child: FittedBox(
+                  fit: BoxFit.fill,
+                  child: Image.network(sshot.data?.docs[index].get('postURL'))
+              ),
+            );
+          }
     );
+    })
+    );
+
   }
 
+  
+  /*
+  return ListView.builder(itemCount: sshot.data?.docs.length,
+      itemBuilder: (context, index)
+      {
+        return   Container(
+          margin: EdgeInsets.only(top: 8),
+          height: MediaQuery.of(context).size.height*0.6,
+          width: MediaQuery.of(context).size.width,
+          child: FittedBox(
+              fit: BoxFit.fill,
+              child: Image.network(sshot.data?.docs[index].get('postURL'))
+          ),
+        );
+      }
+    );}
+   */
   Widget logoutDialog(context)
   {
 
@@ -330,7 +422,7 @@ class _FollowButtonState extends State<FollowMessageButtons>
   @override
   void initState()
   {
-    Provider.of<FirebaseOperations>(context, listen: false).isFollowing(context, widget.snapshot.data.get('uid')).then((value)
+    Provider.of<FirebaseOperations>(context, listen: false).isFollowing(context, widget.snapshot.data.get('userid')).then((value)
     {
       setState(() {
         isFollowing=value;
@@ -353,7 +445,7 @@ class _FollowButtonState extends State<FollowMessageButtons>
 
         if(isFollowing)
         {
-          Provider.of<FirebaseOperations>(context, listen: false).unfollowUser(context, widget.snapshot.data.get('uid'));
+          Provider.of<FirebaseOperations>(context, listen: false).unfollowUser(context, widget.snapshot.data.get('userid'));
           setState(() {
             isFollowing=false;
           });
@@ -364,7 +456,7 @@ class _FollowButtonState extends State<FollowMessageButtons>
           {
             'username': widget.snapshot.data.get('username'),
             'imageURL': widget.snapshot.data.get('userimage'),
-            'userid': widget.snapshot.data.get('uid'),
+            'userid': widget.snapshot.data.get('userid'),
             'email': widget.snapshot.data.get('useremail'),
             'time': Timestamp.now()
           };

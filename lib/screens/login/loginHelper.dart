@@ -56,6 +56,7 @@ class LoginHelpers with ChangeNotifier
             log('Tapped');
             Provider.of<Authentication>(context, listen: false).signInWithGoogle().whenComplete(()
             {
+              if( Provider.of<Authentication>(context, listen: false).getUserUid()==null) return;
               Navigator.pushReplacement(context, PageTransition(child: Home(), type: PageTransitionType.leftToRight));
 
             });
@@ -199,16 +200,18 @@ class LoginHelpers with ChangeNotifier
                     log('Photourl: ${Provider.of<LoginUtils>(context, listen: false).getAvatarURL()}');
                     Map<String, dynamic> data =
                     {
-                      'uid': Provider.of<Authentication>(context, listen: false).getUserUid(),
+                      'userid': Provider.of<Authentication>(context, listen: false).getUserUid(),
                       'username':usernameController.text,
                       'useremail':emailController.text,
                       'userimage':Provider.of<LoginUtils>(context, listen: false).getAvatarURL(),
                       'followers':0,
                       'following':0,
                       'posts':0,
+                      'description': "",
                     };
                     Provider.of<FirebaseOperations>(context, listen: false).createUserCollection(context, data).whenComplete(()
                     {
+                      if( Provider.of<Authentication>(context, listen: false).getUserUid()==null) return;
                       Navigator.pushReplacement(context, PageTransition(child: Home(), type: PageTransitionType.leftToRight));
                     });
 
@@ -264,10 +267,11 @@ class LoginHelpers with ChangeNotifier
             FloatingActionButton(backgroundColor: constColors.blueColor,
               onPressed: ()
             {
-              if(emailController.text.isNotEmpty)
+              if(emailController.text.isNotEmpty && passwordController.text.isNotEmpty)
                 Provider.of<Authentication>(context, listen: false).logIntoAccount(emailController.text, passwordController.text).whenComplete(()
                 {
-                  Navigator.pushReplacement(context, PageTransition(child: Home(), type: PageTransitionType.leftToRight));
+                  if(Provider.of<Authentication>(context, listen: false).getUserUid()==null) WarningSheet(context, 'Invalid user name or password');
+                  else Navigator.pushAndRemoveUntil(context, PageTransition(child: Home(), type: PageTransitionType.leftToRight), (Route<dynamic> route) => false);
 
                 });
               else WarningSheet(context, 'Please enter a valid email ID');
