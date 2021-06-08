@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:socialmedia/database/auth.dart';
+import 'package:socialmedia/screens/Chatroom/chatroomHelpers.dart';
+import 'package:socialmedia/screens/Chatroom/chatroomUtils.dart';
 import 'package:socialmedia/screens/Feed/LikesAndComments/LikesCommentFirebase.dart';
 import 'package:socialmedia/screens/Home/homeHelpers.dart';
 import 'screens/splash.dart';
@@ -45,6 +47,10 @@ class MyApp extends StatelessWidget
         ChangeNotifierProvider(create: (_) => FeedHelpers()),
         ChangeNotifierProvider(create: (_) => UploadPost()),
         ChangeNotifierProvider(create: (_) => LikesCommentsFirebase()),
+        ChangeNotifierProvider(create: (_) => ChatroomHelpers()),
+        ChangeNotifierProvider(create: (_) => ChatroomUtils()),
+
+
 
       ],
     );
