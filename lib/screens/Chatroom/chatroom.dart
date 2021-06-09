@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -62,6 +64,8 @@ class Chatroom extends StatelessWidget
                          GestureDetector(
                            onTap: ()
                            {
+                         //    log('Group clicked');
+                            //  Provider.of<ChatroomHelpers>(context, listen: false).showChatScreen(context, snapshot.data!.docs[index]);
                              Navigator.push(context, PageTransition(child: ChatScreen(snapshot: snapshot.data!.docs[index]), type: PageTransitionType.leftToRight));
                            },
                            child: Container(

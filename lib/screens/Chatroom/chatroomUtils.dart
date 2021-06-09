@@ -92,4 +92,15 @@ class ChatroomUtils with ChangeNotifier
     });
   }
 
+  Future addChatMessageToDatabase(BuildContext context, String message, String chatroomid)
+  {
+    return FirebaseFirestore.instance.collection("chatrooms").doc(chatroomid).collection("messages").add(
+        {
+          'senderid': Provider.of<Authentication>(context, listen: false).getUserUid(),
+          'sendername': Provider.of<FirebaseOperations>(context, listen: false).name,
+          'imageURL': Provider.of<FirebaseOperations>(context, listen: false).imageURL,
+          'message': message,
+          'time': Timestamp.now(),
+        });
+  }
 }

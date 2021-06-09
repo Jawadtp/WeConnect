@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:socialmedia/database/auth.dart';
 import 'package:socialmedia/database/firebaseops.dart';
 import '../../constants/colors.dart';
@@ -14,6 +15,9 @@ import 'package:image_picker/image_picker.dart';
 class ChatroomHelpers with ChangeNotifier
 {
   ConstantColors constColors = ConstantColors();
+
+  TextEditingController msgController = TextEditingController();
+
 
   chatroomAppBar(context)
   {
@@ -120,6 +124,7 @@ class ChatroomHelpers with ChangeNotifier
                     'description':descController.text,
                     'imageURL': Provider.of<ChatroomUtils>(context, listen: false).avatarURL,
                     'createdAt': Timestamp.now(),
+                    'createdBy': Provider.of<FirebaseOperations>(context, listen: false).name,
                     'lastmessage': '',
                     'lastmessagesender': '',
                     'userids':
@@ -135,6 +140,199 @@ class ChatroomHelpers with ChangeNotifier
             ],),),
       );
     });
-  }
 
+  }
+  showChatScreen(context, snapshot) {
+    return Scaffold(
+      appBar: AppBar(
+        centerTitle: false,
+        toolbarHeight: 70,
+        titleSpacing: 0,
+        backgroundColor: constColors.blueGreyColor.withOpacity(0.4),
+        leading: IconButton(onPressed: () {
+          Navigator.of(context).pop();
+        },
+          icon: Icon(Icons.arrow_back_ios),
+          color: constColors.whiteColor.withOpacity(0.4),),
+        automaticallyImplyLeading: false,
+        title: Row(
+          children: [
+            CircleAvatar(radius: 16,
+                backgroundImage: NetworkImage(snapshot.get('imageURL'))),
+            SizedBox(width: 10),
+            Column(crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  snapshot.get('name'), style: TextStyle(color: Colors.white),),
+                SizedBox(height: 3,),
+                Text('${snapshot
+                    .get('userids')
+                    .length} member${snapshot
+                    .get('userids')
+                    .length > 1 ? 's' : ''}', style: TextStyle(
+                    color: Colors.white.withOpacity(0.4), fontSize: 13)),
+
+              ],
+            ),
+
+          ],
+        ),
+        actions:
+        [
+          IconButton(
+              icon: Icon(Icons.add, color: constColors.greenColor, size: 30,),
+              onPressed: () {
+                //  Navigator.pop(context);
+                // Navigator.push(context, PageTransition(child: ChatScreen(snapshot: snapshot), type: PageTransitionType.leftToRight));
+              }
+          )
+        ],
+      ),
+      body: Container(child: Stack(children: [
+        Container(
+          padding: EdgeInsets.only(bottom: 80),
+          child: Container(
+              margin: EdgeInsets.only(top: 10),
+              child: StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance.collection("chatrooms").doc(
+                    snapshot.id).collection("messages").orderBy(
+                    'time', descending: false).snapshots(),
+                builder: (context, msgSnapshot) {
+                  if (msgSnapshot.connectionState == ConnectionState.waiting)
+                    return Center(child: CircularProgressIndicator());
+                  return ListView.builder(
+                      itemCount: msgSnapshot.data?.docs.length,
+                      itemBuilder: (context, index) {
+                        return msgSnapshot.data!.docs[index].get('senderid') ==
+                            Provider.of<Authentication>(context, listen: false)
+                                .getUserUid() ?
+                        //  index%2==0?
+                        Row(
+                          children: [
+                            Spacer(),
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 5, horizontal: 10),
+                              constraints: BoxConstraints(maxWidth: 300),
+                              margin: EdgeInsets.fromLTRB(0, 0, 10, 15),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Text(msgSnapshot.data!.docs[index].get(
+                                      'message'), style: TextStyle(
+                                      color: Colors.black, fontSize: 17),),
+                                  SizedBox(height: 8,),
+                                  Text(DateFormat.jm().format(
+                                      msgSnapshot.data!.docs[index]
+                                          .get('time')
+                                          .toDate()), style: TextStyle(
+                                      color: Colors.black.withOpacity(0.5),
+                                      fontSize: 10),),
+
+                                ],
+                              ),
+                              decoration: BoxDecoration(
+                                  color: Colors.lightGreenAccent,
+                                  borderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(10),
+                                      topRight: Radius.circular(10),
+                                      bottomLeft: Radius.circular(10),
+                                      bottomRight: Radius.circular(0))),
+                            ),
+                          ],
+                        )
+                            :
+                        Row(
+                          children: [
+
+                            Container(
+                              margin: EdgeInsets.fromLTRB(20, 0, 10, 15),
+                              constraints: BoxConstraints(maxWidth: 300),
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 8, horizontal: 10),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(15),
+                                    topRight: Radius.circular(15),
+                                    bottomRight: Radius.circular(15)),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children:
+                                    [
+
+                                      CircleAvatar(radius: 10,
+                                          backgroundImage: NetworkImage(
+                                              msgSnapshot.data!.docs[index].get(
+                                                  'imageURL'))),
+                                      SizedBox(width: 10,),
+                                      Text(msgSnapshot.data!.docs[index].get(
+                                          'sendername'), style: TextStyle(
+                                          color: Colors.black, fontSize: 16),),
+                                      SizedBox(width: 10,),
+                                      Text(DateFormat.jm().format(
+                                          msgSnapshot.data!.docs[index].get(
+                                              'time').toDate()),
+                                        style: TextStyle(
+                                            color: Colors.black.withOpacity(
+                                                0.5), fontSize: 10),),
+
+                                    ],
+                                  ),
+                                  SizedBox(height: 8,),
+                                  Text(msgSnapshot.data!.docs[index].get(
+                                      'message'), style: TextStyle(
+                                      color: Colors.black, fontSize: 17),),
+                                ],
+                              ),
+                            ),
+
+                          ],
+                        );
+                      }
+                  );
+                }
+                ,
+              )
+          ),
+        ),
+
+        Container(alignment: Alignment(1, 0.99),
+          child: Container(
+            margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            padding: EdgeInsets.only(left: 10),
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(20),
+                color: /*Color(0xFFe3e3cf)*/ Colors.white,
+                border: Border.all(color: Color(0xFFe3e3cf), width: 2.0)),
+            child: Row(
+              children: [
+                Expanded(child: TextField(controller: msgController,
+                  decoration: InputDecoration(border: InputBorder.none,
+                      hintText: "Enter message..",
+                      hintStyle: TextStyle(fontSize: 15,
+                          color: Colors.black.withOpacity(0.5))),)),
+                Container(decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(30),
+                    color: Colors.blue),
+                    child: IconButton(
+                      icon: Icon(Icons.send, size: 22, color: Colors.white,),
+                      onPressed: () {
+                        if (msgController.text.isEmpty) return;
+                        Provider.of<ChatroomUtils>(context, listen: false)
+                            .addChatMessageToDatabase(context,
+                            msgController.text, snapshot.id);
+                        msgController.clear();
+                        FocusScope.of(context).unfocus();
+                      },))
+              ],
+            ),
+          ),)
+      ],),),
+    );
+  }
 }
