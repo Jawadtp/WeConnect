@@ -246,7 +246,7 @@ class LoginHelpers with ChangeNotifier
       return Padding(
         padding:  EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
         child: Container(
-          height: MediaQuery.of(context).size.height*0.32,
+          height: MediaQuery.of(context).size.height*0.35,
           width: MediaQuery.of(context).size.width,
           decoration: BoxDecoration(color: constColors.blueGreyColor, borderRadius: BorderRadius.only(topRight: Radius.circular(12), topLeft: Radius.circular(12))),
           child: Column(children:

@@ -94,6 +94,11 @@ class ChatroomUtils with ChangeNotifier
 
   Future addChatMessageToDatabase(BuildContext context, String message, String chatroomid)
   {
+    FirebaseFirestore.instance.collection("chatrooms").doc(chatroomid).update(
+        {
+          'lastmessage':message,
+          'lastmessagesender':Provider.of<FirebaseOperations>(context, listen: false).name,
+        });
     return FirebaseFirestore.instance.collection("chatrooms").doc(chatroomid).collection("messages").add(
         {
           'senderid': Provider.of<Authentication>(context, listen: false).getUserUid(),

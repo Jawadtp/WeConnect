@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:socialmedia/constants/colors.dart';
 import 'package:socialmedia/database/auth.dart';
+import 'package:socialmedia/screens/Chatroom/chatroomSettings/addPeople.dart';
 
 
 class ChatroomSettings extends StatelessWidget
@@ -106,6 +107,8 @@ class ChatroomSettings extends StatelessWidget
                             GestureDetector(
                               onTap: ()
                               {
+                                log('Pressed');
+                                Navigator.of(context).push(MaterialPageRoute(builder: (context) => AddPeople(snapshot: snapshot,)));
 
                               },
                               child: Container(

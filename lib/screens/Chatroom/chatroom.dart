@@ -76,7 +76,8 @@ class Chatroom extends StatelessWidget
                                 [
                                   Text(snapshot.data!.docs[index].get('name'), style: TextStyle(color: Colors.white, fontSize: 16),),
                                   SizedBox(height: 4),
-                                  Text("Jawadtp: It doesn't matter lol", style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 14),),
+                                  snapshot.data!.docs[index].get('lastmessage')==""?Container():
+                                  Text("${snapshot.data!.docs[index].get('lastmessagesender')}: ${snapshot.data!.docs[index].get('lastmessage').length<25?snapshot.data!.docs[index].get('lastmessage'):snapshot.data!.docs[index].get('lastmessage').substring(0,25                                                     )+'...'}", style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 14),),
 
                                 ],),
                            ),

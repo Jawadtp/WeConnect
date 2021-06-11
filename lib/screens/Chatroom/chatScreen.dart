@@ -1,23 +1,47 @@
+import 'dart:async';
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
 import 'package:socialmedia/constants/colors.dart';
 import 'package:socialmedia/database/auth.dart';
-import 'package:socialmedia/screens/Chatroom/chatroomSettings.dart';
+import 'package:socialmedia/screens/Chatroom/chatroomSettings/chatroomSettings.dart';
 import 'package:socialmedia/screens/Chatroom/chatroomUtils.dart';
 import 'package:intl/intl.dart';
+ScrollController controller = ScrollController();
 
 class ChatScreen extends StatelessWidget with ChangeNotifier
 {
   var snapshot;
+  int msgCount=0;
   ConstantColors constColors = ConstantColors();
   ChatScreen({@required this.snapshot});
   TextEditingController msgController = TextEditingController();
 
+  int getInt(int? x)
+  {
+    if(x==null) return -1;
+    return x;
+  }
+
+  void scrollToBottom() {
+    log('Scrolling to bottom');
+    controller.position.maxScrollExtent;
+
+
+  }
+
   @override
   Widget build(BuildContext context)
   {
+    WidgetsBinding.instance!.addPostFrameCallback((_)
+    {
+      Timer(Duration(milliseconds: 700), () {controller.jumpTo(controller.position.maxScrollExtent);});
+    });
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: false,
@@ -74,7 +98,10 @@ class ChatScreen extends StatelessWidget with ChangeNotifier
               builder: (context, msgSnapshot)
               {
                 if(msgSnapshot.connectionState==ConnectionState.waiting) return Center(child: CircularProgressIndicator());
+                if(getInt(msgSnapshot.data?.docs.length)>msgCount)       Timer(Duration(milliseconds: 700), () {controller.jumpTo(controller.position.maxScrollExtent);});
+                msgCount = getInt(msgSnapshot.data?.docs.length);
                 return ListView.builder(
+                    controller: controller,
                     itemCount: msgSnapshot.data?.docs.length,
                     itemBuilder: (context, index)
                     {
@@ -86,7 +113,7 @@ class ChatScreen extends StatelessWidget with ChangeNotifier
                           Container(
                             padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
                             constraints: BoxConstraints(maxWidth: 300),
-                            margin: EdgeInsets.fromLTRB(0,0,10,15),
+                            margin: EdgeInsets.fromLTRB(0,0,10,7),
                             child: Column(crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
                                 Text(msgSnapshot.data!.docs[index].get('message'), style: TextStyle(color: Colors.black, fontSize: 17),),
@@ -104,7 +131,7 @@ class ChatScreen extends StatelessWidget with ChangeNotifier
                         children: [
 
                           Container(
-                            margin: EdgeInsets.fromLTRB(20, 0, 10, 15),
+                            margin: EdgeInsets.fromLTRB(20, 0, 10, 7),
                             constraints: BoxConstraints(maxWidth: 300),
                             padding:  EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                             decoration: BoxDecoration(
@@ -150,8 +177,11 @@ class ChatScreen extends StatelessWidget with ChangeNotifier
               Container(decoration:BoxDecoration(borderRadius: BorderRadius.circular(30),color: Colors.blue),child: IconButton(icon: Icon(Icons.send,size: 22,color: Colors.white,),onPressed: ()
               {
                 if(msgController.text.isEmpty) return;
-                  Provider.of<ChatroomUtils>(context, listen: false).addChatMessageToDatabase(context, msgController.text, snapshot.id);
+                scrollToBottom();
+
+                Provider.of<ChatroomUtils>(context, listen: false).addChatMessageToDatabase(context, msgController.text, snapshot.id);
                   msgController.clear();
+
                    FocusScope.of(context).unfocus();
 
               },))
