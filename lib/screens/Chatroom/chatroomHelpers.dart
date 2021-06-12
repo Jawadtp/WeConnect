@@ -127,6 +127,7 @@ class ChatroomHelpers with ChangeNotifier
                     'createdBy': Provider.of<FirebaseOperations>(context, listen: false).name,
                     'lastmessage': '',
                     'lastmessagesender': '',
+                    'lastmessagetime': Timestamp.now(),
                     'userids':
                         [
                           Provider.of<Authentication>(context, listen: false).getUserUid(),

@@ -21,6 +21,7 @@ class ChatScreen extends StatelessWidget with ChangeNotifier
   ChatScreen({@required this.snapshot});
   TextEditingController msgController = TextEditingController();
 
+
   int getInt(int? x)
   {
     if(x==null) return -1;
@@ -37,6 +38,8 @@ class ChatScreen extends StatelessWidget with ChangeNotifier
   @override
   Widget build(BuildContext context)
   {
+    bool isPrivate=snapshot.get('type')=='private';
+    int friend = snapshot.get('userids')[0]==Provider.of<Authentication>(context, listen: false).getUserUid()?1:0;
     WidgetsBinding.instance!.addPostFrameCallback((_)
     {
       Timer(Duration(milliseconds: 700), () {controller.jumpTo(controller.position.maxScrollExtent);});
@@ -50,7 +53,17 @@ class ChatScreen extends StatelessWidget with ChangeNotifier
         backgroundColor: constColors.blueGreyColor.withOpacity(0.4),
         leading: IconButton(onPressed: () {Navigator.of(context).pop();},icon: Icon(Icons.arrow_back_ios), color: constColors.whiteColor.withOpacity(0.4),),
         automaticallyImplyLeading: false,
-        title: GestureDetector(
+        title:
+        isPrivate?
+        Row(children:
+        [
+          CircleAvatar(radius: 18, backgroundImage: NetworkImage(snapshot.get('imageURLs')[friend])),
+          SizedBox(width: 14,),
+          Text(snapshot.get('names')[friend], style: TextStyle(color: Colors.white),),
+
+        ],)
+            :
+        GestureDetector(
           onTap: ()
           {
             Navigator.of(context).push(MaterialPageRoute(builder: (context) => ChatroomSettings(id: snapshot.id)));

@@ -7,6 +7,7 @@ import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
 import 'package:socialmedia/constants/colors.dart';
 import 'package:socialmedia/database/auth.dart';
+import 'package:socialmedia/screens/Chatroom/addContact.dart';
 import 'package:socialmedia/screens/Chatroom/chatScreen.dart';
 import 'chatroomHelpers.dart';
 
@@ -17,6 +18,11 @@ class Chatroom extends StatelessWidget
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(onPressed: ()
+      {
+        Navigator.push(context, PageTransition(child: AddContact(), type: PageTransitionType.topToBottom));
+
+      },child: Icon(Icons.person,size: 30,),),
       resizeToAvoidBottomInset: false,
       appBar: Provider.of<ChatroomHelpers>(context, listen: false).chatroomAppBar(context),
       body: Container(
@@ -44,28 +50,33 @@ class Chatroom extends StatelessWidget
           height: MediaQuery.of(context).size.height*0.65,
           //color: constColors.redColor,
           child: StreamBuilder<QuerySnapshot>(
-            stream: FirebaseFirestore.instance.collection("chatrooms").where('userids', arrayContains: Provider.of<Authentication>(context, listen: false).getUserUid()).snapshots(),
+            stream: FirebaseFirestore.instance.collection("chatrooms").orderBy('lastmessagetime', descending: true).snapshots(),
             builder: (context, snapshot)
             {
+
               if(snapshot.connectionState==ConnectionState.waiting)
                 return Center(child: CircularProgressIndicator(),);
               else
+                {
                 return ListView.builder(
                 itemCount: snapshot.data?.docs.length,
                 itemBuilder: (context, index)
                 {
-                 return Container(
+                  bool isPrivate = snapshot.data!.docs[index].get('type')=='private';
+                  int friend=Provider.of<Authentication>(context, listen: false).getUserUid()==snapshot.data!.docs[index].get('userids')[0]?1:0;
+                  return Container(
 
                       margin: EdgeInsets.only(bottom: 20),
                       child: Row(children:
                       [
-                          CircleAvatar(radius: 24, backgroundImage: NetworkImage(snapshot.data!.docs[index].get('imageURL'))),
-                          SizedBox(width: 19),
+                        !isPrivate?
+                        CircleAvatar(radius: 24, backgroundImage: NetworkImage(snapshot.data!.docs[index].get('imageURL'))):
+                        CircleAvatar(radius: 24, backgroundImage: NetworkImage(snapshot.data!.docs[index].get('imageURLs')[friend])),
+
+                        SizedBox(width: 19),
                          GestureDetector(
                            onTap: ()
                            {
-                         //    log('Group clicked');
-                            //  Provider.of<ChatroomHelpers>(context, listen: false).showChatScreen(context, snapshot.data!.docs[index]);
                              Navigator.push(context, PageTransition(child: ChatScreen(snapshot: snapshot.data!.docs[index]), type: PageTransitionType.leftToRight));
                            },
                            child: Container(
@@ -74,7 +85,11 @@ class Chatroom extends StatelessWidget
                              child: Column(crossAxisAlignment: CrossAxisAlignment.start,
                                   children:
                                 [
-                                  Text(snapshot.data!.docs[index].get('name'), style: TextStyle(color: Colors.white, fontSize: 16),),
+                                  !isPrivate?
+                                  Text(snapshot.data!.docs[index].get('name'), style: TextStyle(color: Colors.white, fontSize: 16),):
+                                  Text(snapshot.data!.docs[index].get('names')[friend], style: TextStyle(color: Colors.white, fontSize: 16),),
+
+
                                   SizedBox(height: 4),
                                   snapshot.data!.docs[index].get('lastmessage')==""?Container():
                                   Text("${snapshot.data!.docs[index].get('lastmessagesender')}: ${snapshot.data!.docs[index].get('lastmessage').length<25?snapshot.data!.docs[index].get('lastmessage'):snapshot.data!.docs[index].get('lastmessage').substring(0,25                                                     )+'...'}", style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 14),),
@@ -86,7 +101,7 @@ class Chatroom extends StatelessWidget
                       ],),
                     );
                 }
-              );
+              );}
             },
           ),
           )

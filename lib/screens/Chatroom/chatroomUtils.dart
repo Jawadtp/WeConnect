@@ -98,6 +98,7 @@ class ChatroomUtils with ChangeNotifier
         {
           'lastmessage':message,
           'lastmessagesender':Provider.of<FirebaseOperations>(context, listen: false).name,
+          'lastmessagetime':Timestamp.now()
         });
     return FirebaseFirestore.instance.collection("chatrooms").doc(chatroomid).collection("messages").add(
         {
