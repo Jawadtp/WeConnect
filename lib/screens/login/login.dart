@@ -7,14 +7,19 @@ class Login extends StatelessWidget {
   final ConstantColors constColors = ConstantColors();
   @override
   Widget build(BuildContext context) {
-    return Scaffold(backgroundColor: constColors.whiteColor,  body: Column(children:
+    return Scaffold(
+      resizeToAvoidBottomInset: false,
+      backgroundColor: constColors.whiteColor,  body: Column(children:
     [
-      bodyColor(Column(children:
+      bodyColor(Column(crossAxisAlignment: CrossAxisAlignment.center,
+        children:
       [
         Container(padding: EdgeInsets.fromLTRB(0, 50, 0, 0),child: Provider.of<LoginHelpers>(context, listen: false).Logo(context)),
         Container(padding: EdgeInsets.fromLTRB(0, 120, 20, 0),child: Provider.of<LoginHelpers>(context, listen: false).HelperText(context)),
-        Container(padding: EdgeInsets.fromLTRB(0, 120, 20, 0),child: Provider.of<LoginHelpers>(context, listen: false).googleButton(context)),
-        Container(padding: EdgeInsets.fromLTRB(0, 20, 20, 0),child: Provider.of<LoginHelpers>(context, listen: false).EmailLoginButton(context)),
+      //  Container(padding: EdgeInsets.fromLTRB(0, 120, 20, 0),child: Provider.of<LoginHelpers>(context, listen: false).googleButton(context)),
+     //   Container(padding: EdgeInsets.fromLTRB(0, 20, 20, 0),child: Provider.of<LoginHelpers>(context, listen: false).EmailLoginButton(context)),
+        SizedBox(height: 30),
+        Container(padding: EdgeInsets.fromLTRB(0, 20, 20, 0),child: Provider.of<LoginHelpers>(context, listen: false).LoginRevised(context)),
 
       ],)),
 
