@@ -120,6 +120,7 @@ class ChatroomHelpers with ChangeNotifier
                   if (Provider.of<ChatroomUtils>(context, listen: false).avatarURL == null) return;
                   Map<String, dynamic> m =
                   {
+                    'type':'public',
                     'name':nameController.text,
                     'description':descController.text,
                     'imageURL': Provider.of<ChatroomUtils>(context, listen: false).avatarURL,
