@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
 import 'package:socialmedia/constants/colors.dart';
@@ -92,9 +93,16 @@ class _ChatroomState extends State<Chatroom> {
                              child: Column(crossAxisAlignment: CrossAxisAlignment.start,
                                   children:
                                 [
-                                  !isPrivate?
-                                  Text(snapshot.data!.docs[index].get('name'), style: TextStyle(color: Colors.white, fontSize: 16),):
-                                  Text(snapshot.data!.docs[index].get('names')[friend], style: TextStyle(color: Colors.white, fontSize: 16),),
+
+                                  Row(
+                                    children: [
+                                      Text(!isPrivate?snapshot.data!.docs[index].get('name'):snapshot.data!.docs[index].get('names')[friend], style: TextStyle(color: Colors.white, fontSize: 16),),
+                                      Spacer(),
+                                      Text(DateFormat.jm().format(snapshot.data!.docs[index].get('lastmessagetime').toDate()),style: TextStyle(color: Colors.white.withOpacity(0.5)),),
+
+                                    ],
+                                  ),
+
 
 
                                   SizedBox(height: 4),
@@ -104,7 +112,6 @@ class _ChatroomState extends State<Chatroom> {
                                 ],),
                            ),
                          ),
-
                       ],),
                     );
                 }

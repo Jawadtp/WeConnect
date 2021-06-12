@@ -25,7 +25,7 @@ class FeedHelpers with ChangeNotifier
   ConstantColors constColors = ConstantColors();
   TextEditingController captionController = new TextEditingController();
   TextEditingController commentController = new TextEditingController();
-  TextEditingController captionEditController = TextEditingController();
+  TextEditingController captionEditController = new TextEditingController();
 
 
   getTimeAgo(Timestamp timeData)
@@ -94,15 +94,18 @@ class FeedHelpers with ChangeNotifier
             {
               if(snapshot.connectionState==ConnectionState.waiting)
                 return Center(child: CircularProgressIndicator(),);
-              else return ListView.builder(
+              if(snapshot.hasData) return ListView.builder(
                   cacheExtent: MediaQuery.of(context).size.height*5,
                   itemCount: snapshot.data?.docs.length,
 
                   itemBuilder: (context, index)
                   {
+                    if(Provider.of<FirebaseOperations>(context, listen: false).following.contains(snapshot.data!.docs[index].get('userid')))
                     return feedPost(snapshot.data!.docs[index], context);
+                    return Container();
                   }
               );
+              return Container();
             }),);
 
   }

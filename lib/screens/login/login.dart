@@ -15,7 +15,7 @@ class Login extends StatelessWidget {
         children:
       [
         Container(padding: EdgeInsets.fromLTRB(0, 50, 0, 0),child: Provider.of<LoginHelpers>(context, listen: false).Logo(context)),
-        Container(padding: EdgeInsets.fromLTRB(0, 120, 20, 0),child: Provider.of<LoginHelpers>(context, listen: false).HelperText(context)),
+        Container(padding: EdgeInsets.fromLTRB(0, 50, 20, 0),child: Provider.of<LoginHelpers>(context, listen: false).HelperText(context)),
       //  Container(padding: EdgeInsets.fromLTRB(0, 120, 20, 0),child: Provider.of<LoginHelpers>(context, listen: false).googleButton(context)),
      //   Container(padding: EdgeInsets.fromLTRB(0, 20, 20, 0),child: Provider.of<LoginHelpers>(context, listen: false).EmailLoginButton(context)),
         SizedBox(height: 30),

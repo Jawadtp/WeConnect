@@ -2,10 +2,13 @@ import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
 import 'package:socialmedia/constants/colors.dart';
 import 'package:socialmedia/database/auth.dart';
 import 'package:socialmedia/database/firebaseops.dart';
+
+import 'chatScreen.dart';
 
 class AddContact extends StatefulWidget
 {
@@ -22,26 +25,79 @@ class _AddContactState extends State<AddContact>
 
   startConversation(user) async
   {
-    await FirebaseFirestore.instance.collection("chatrooms").add(
+    FirebaseFirestore.instance.collection("chatrooms").where('userids', arrayContains: user.get('userid')).get().then((qs) async
     {
-      'type': 'private',
-      'createdAt': Timestamp.now(),
-      'userids': [
-                    Provider.of<Authentication>(context, listen: false).getUserUid(),
-                    user.get('userid')
-                ],
-      'names': [
-                      Provider.of<FirebaseOperations>(context, listen: false).name,
-                    user.get('username'),
+      log('Length: '+qs.docs.length.toString());
+      bool exists=false;
+      for(int i=0; i<qs.docs.length; i++)
+      {
+        if (qs.docs[i].get('userids').contains(Provider.of<Authentication>(context, listen: false).getUserUid()) && qs.docs[i].get('type') == 'private')
+        {
+          //Navigator.pop(context);
+          Navigator.pushReplacement(context, PageTransition(child: ChatScreen(snapshot: qs.docs[i]), type: PageTransitionType.leftToRight));
+          exists=true;
+          break;
+        }
+      }
+      if(!exists) {
+        await FirebaseFirestore.instance.collection("chatrooms").add(
+            {
+              'type': 'private',
+              'createdAt': Timestamp.now(),
+              'userids': [
+                Provider.of<Authentication>(context, listen: false)
+                    .getUserUid(),
+                user.get('userid')
               ],
-      'imageURLs': [
-                        Provider.of<FirebaseOperations>(context, listen: false).imageURL,
-                        user.get('imageURL'),
-                    ],
-      'lastmessage': '',
-      'lastmessagesender': '',
-      'lastmessagetime': Timestamp.now()
+              'names': [
+                Provider
+                    .of<FirebaseOperations>(context, listen: false)
+                    .name,
+                user.get('username'),
+              ],
+              'imageURLs': [
+                Provider
+                    .of<FirebaseOperations>(context, listen: false)
+                    .imageURL,
+                user.get('imageURL'),
+              ],
+              'lastmessage': '',
+              'lastmessagesender': '',
+              'lastmessagetime': Timestamp.now()
+            }).then((DocRef)
+        {
+          DocRef.get().then((DS)
+          {
+            Navigator.pushReplacement(context, PageTransition(child: ChatScreen(snapshot: DS), type: PageTransitionType.leftToRight));
+
+          });
+        });
+      }
+
     });
+    /*
+      await FirebaseFirestore.instance.collection("chatrooms").add(
+          {
+            'type': 'private',
+            'createdAt': Timestamp.now(),
+            'userids': [
+              Provider.of<Authentication>(context, listen: false).getUserUid(),
+              user.get('userid')
+            ],
+            'names': [
+              Provider.of<FirebaseOperations>(context, listen: false).name,
+              user.get('username'),
+            ],
+            'imageURLs': [
+              Provider.of<FirebaseOperations>(context, listen: false).imageURL,
+              user.get('imageURL'),
+            ],
+            'lastmessage': '',
+            'lastmessagesender': '',
+            'lastmessagetime': Timestamp.now()
+          });
+*/
+
 
   }
   fetchUserList() async
@@ -125,7 +181,7 @@ class _AddContactState extends State<AddContact>
                         {
                           log('HITTTT');
                           startConversation(users?.docs[index]);
-                          Navigator.pop(context);
+                          //Navigator.pop(context);
                         },
                         child: Container(
                           padding: EdgeInsets.symmetric(vertical: 5),

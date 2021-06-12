@@ -5,6 +5,10 @@ import 'package:firebase_core/firebase_core.dart';
 import 'dart:core';
 import 'dart:developer';
 
+import 'package:provider/provider.dart';
+
+import 'firebaseops.dart';
+
 class Authentication with ChangeNotifier {
   FirebaseAuth _auth = FirebaseAuth.instance;
   GoogleSignIn _googleSignIn = GoogleSignIn();
@@ -73,9 +77,10 @@ class Authentication with ChangeNotifier {
      */
   }
 
-  Future emailLogOut()
+  Future emailLogOut(context)
   {
     userUid=null;
+    Provider.of<FirebaseOperations>(context, listen: false).following=[];
     return _auth.signOut();
   }
 

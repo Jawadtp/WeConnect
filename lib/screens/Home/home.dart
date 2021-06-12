@@ -27,13 +27,13 @@ class _HomeState extends State<Home>
   int pageIndex=0;
   PageController pageController = PageController();
 
-    @override
+  /*  @override
   void initState()
     {
     Provider.of<FirebaseOperations>(context, listen: false).initUserData(context);
 
     super.initState();
-  }
+  } */
   @override
   Widget build(BuildContext context) {
     return Scaffold(

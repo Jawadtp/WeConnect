@@ -360,14 +360,19 @@ class LoginHelpers with ChangeNotifier
         SizedBox(height: 28),
         Center(
           child: InkWell(
-            onTap: ()
+            onTap: () async
             {
               if(emailController.text.isNotEmpty && passwordController.text.isNotEmpty)
-                Provider.of<Authentication>(context, listen: false).logIntoAccount(emailController.text, passwordController.text).whenComplete(()
+                Provider.of<Authentication>(context, listen: false).logIntoAccount(emailController.text, passwordController.text).whenComplete(() async
                 {
                   if(Provider.of<Authentication>(context, listen: false).getUserUid()==null) WarningSheet(context, 'Invalid user name or password');
-                  else Navigator.pushAndRemoveUntil(context, PageTransition(child: Home(), type: PageTransitionType.leftToRight), (Route<dynamic> route) => false);
-
+                  else
+                    {
+                    await Provider.of<FirebaseOperations>(context, listen: false).initUserData(context);
+                      log('Loading home screen...');
+                    Navigator.pushAndRemoveUntil(context, PageTransition(child:
+                           Home(), type: PageTransitionType.leftToRight), (Route<dynamic> route) => false);
+                    }
                 });
               else WarningSheet(context, 'Please enter a valid email ID');
             },

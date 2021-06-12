@@ -12,6 +12,13 @@ class FirebaseOperations with ChangeNotifier
   String imageURL="";
   String name="";
   String email="";
+  List<String> following=[];
+
+  String getString(String ?x)
+  {
+    if(x==null) return '';
+    return x;
+  }
 
   Future uploadUserAvatar(BuildContext context) async
   {
@@ -52,10 +59,22 @@ class FirebaseOperations with ChangeNotifier
       return FirebaseFirestore.instance.collection('users').doc(Provider.of<Authentication>(context, listen:false).getUserUid()).set(data);
   }
 
-  Future initUserData(BuildContext context) async
+   initUserData(BuildContext context) async
   {
 
-    return FirebaseFirestore.instance.collection("users").doc(Provider.of<Authentication>(context, listen:false).getUserUid()).get().then((doc)
+    await FirebaseFirestore.instance.collection("users").doc(Provider.of<Authentication>(context, listen:false).getUserUid()).collection("following").get().then((qs)
+    {
+      following.add(getString(Provider.of<Authentication>(context, listen:false).getUserUid()));
+      qs.docs.forEach((DS)
+      {
+        following.add(DS.get('userid'));
+      });
+    } );
+    following.forEach((element)
+    {
+      log(element);
+    });
+    await FirebaseFirestore.instance.collection("users").doc(Provider.of<Authentication>(context, listen:false).getUserUid()).get().then((doc)
     {
       log('User data fetched. Assigning to variables');
       imageURL=doc.data()?['userimage'];
@@ -68,6 +87,7 @@ class FirebaseOperations with ChangeNotifier
 
   Future followUser(BuildContext context, String friendid, Map<String, dynamic> frienddata)
   {
+    following.add(friendid);
     FirebaseFirestore.instance.collection("users").doc(Provider.of<Authentication>(context, listen:false).getUserUid()).update(
         {
           'following':FieldValue.increment(1)
@@ -92,6 +112,8 @@ class FirebaseOperations with ChangeNotifier
 
   Future unfollowUser(BuildContext context, String friendid)
   {
+    following.remove(friendid);
+
     FirebaseFirestore.instance.collection("users").doc(Provider.of<Authentication>(context, listen:false).getUserUid()).update(
         {
           'following':FieldValue.increment(-1)

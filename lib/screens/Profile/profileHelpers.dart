@@ -386,7 +386,7 @@ class ProfileHelpers with ChangeNotifier
         MaterialButton(
           onPressed: ()
           {
-            Provider.of<Authentication>(context, listen: false).emailLogOut().whenComplete(()
+            Provider.of<Authentication>(context, listen: false).emailLogOut(context).whenComplete(()
             {
               Navigator.pushReplacement(context, PageTransition(child: Login(), type: PageTransitionType.leftToRight));
 
