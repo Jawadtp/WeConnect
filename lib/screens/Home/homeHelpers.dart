@@ -31,6 +31,7 @@ class HomeHelper with ChangeNotifier
       items:
         [
           CustomNavigationBarItem(icon: Icon(EvaIcons.home)),
+          CustomNavigationBarItem(icon: Icon(EvaIcons.search)),
           CustomNavigationBarItem(icon: Icon(EvaIcons.messageCircle)),
           CustomNavigationBarItem(
               icon: CircleAvatar(

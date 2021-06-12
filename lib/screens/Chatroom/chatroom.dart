@@ -11,10 +11,17 @@ import 'package:socialmedia/screens/Chatroom/addContact.dart';
 import 'package:socialmedia/screens/Chatroom/chatScreen.dart';
 import 'chatroomHelpers.dart';
 
-class Chatroom extends StatelessWidget
+class Chatroom extends StatefulWidget
 {
+  @override
+  _ChatroomState createState() => _ChatroomState();
+}
+
+class _ChatroomState extends State<Chatroom> {
   TextEditingController searchController = TextEditingController();
+
   ConstantColors constColors = ConstantColors();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

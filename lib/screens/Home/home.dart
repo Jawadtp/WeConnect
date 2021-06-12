@@ -4,13 +4,15 @@ import 'package:socialmedia/screens/Chatroom/chatroom.dart';
 import 'package:socialmedia/screens/Feed/feed.dart';
 import 'package:socialmedia/screens/Home/homeHelpers.dart';
 import 'package:socialmedia/screens/Profile/profile.dart';
+import 'package:socialmedia/screens/search/search.dart';
 import '../../database/auth.dart';
 import 'package:provider/provider.dart';
 import '../login/loginUtils.dart';
 import '../../database/auth.dart';
 import '../../constants/colors.dart';
 
-class Home extends StatefulWidget {
+class Home extends StatefulWidget
+{
 
   @override
   _HomeState createState() => _HomeState();
@@ -29,6 +31,7 @@ class _HomeState extends State<Home>
   void initState()
     {
     Provider.of<FirebaseOperations>(context, listen: false).initUserData(context);
+
     super.initState();
   }
   @override
@@ -40,6 +43,7 @@ class _HomeState extends State<Home>
         children:
         [
           Feed(),
+          Search(),
           Chatroom(),
           Profile()
         ],
