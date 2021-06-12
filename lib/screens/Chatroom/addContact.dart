@@ -75,31 +75,10 @@ class _AddContactState extends State<AddContact>
       }
 
     });
-    /*
-      await FirebaseFirestore.instance.collection("chatrooms").add(
-          {
-            'type': 'private',
-            'createdAt': Timestamp.now(),
-            'userids': [
-              Provider.of<Authentication>(context, listen: false).getUserUid(),
-              user.get('userid')
-            ],
-            'names': [
-              Provider.of<FirebaseOperations>(context, listen: false).name,
-              user.get('username'),
-            ],
-            'imageURLs': [
-              Provider.of<FirebaseOperations>(context, listen: false).imageURL,
-              user.get('imageURL'),
-            ],
-            'lastmessage': '',
-            'lastmessagesender': '',
-            'lastmessagetime': Timestamp.now()
-          });
-*/
-
 
   }
+
+
   fetchUserList() async
   {
 

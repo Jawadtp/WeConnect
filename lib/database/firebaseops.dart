@@ -113,7 +113,7 @@ class FirebaseOperations with ChangeNotifier
   Future unfollowUser(BuildContext context, String friendid)
   {
     following.remove(friendid);
-
+    notifyListeners();
     FirebaseFirestore.instance.collection("users").doc(Provider.of<Authentication>(context, listen:false).getUserUid()).update(
         {
           'following':FieldValue.increment(-1)
@@ -125,6 +125,7 @@ class FirebaseOperations with ChangeNotifier
     return FirebaseFirestore.instance.collection("users").doc(Provider.of<Authentication>(context, listen:false).getUserUid()).collection("following").doc(friendid).delete().whenComplete(()
     {
       return FirebaseFirestore.instance.collection("users").doc(friendid).collection("followers").doc(Provider.of<Authentication>(context, listen:false).getUserUid()).delete();
+
     });
   }
   

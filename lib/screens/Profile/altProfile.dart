@@ -69,6 +69,8 @@ class altProfile extends StatelessWidget
 
                       //  Provider.of<ProfileHelpers>(context, listen: false).followMessageButtons(context, snapshot),
                     //  Provider.of<ProfileHelpers>(context, listen: false).middleProfile(context, snapshot),
+                      SizedBox(height: 40),
+
                       Provider.of<ProfileHelpers>(context, listen: false).lowerProfile(context, snapshot),
 
 

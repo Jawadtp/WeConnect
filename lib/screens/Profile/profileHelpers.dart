@@ -6,6 +6,7 @@ import 'package:socialmedia/constants/colors.dart';
 import 'package:provider/provider.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:socialmedia/database/firebaseops.dart';
+import 'package:socialmedia/screens/Chatroom/chatScreen.dart';
 import '../../database/auth.dart';
 import '../login/login.dart';
 import 'dart:developer';
@@ -270,6 +271,7 @@ class ProfileHelpers with ChangeNotifier
   }
   Widget userDescription(context, dynamic snapshot)
   {
+    return Container();
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 0, vertical: 10),
       child: Text(snapshot.data.get('description')),
@@ -471,7 +473,64 @@ class _FollowButtonState extends State<FollowMessageButtons>
 
 
         Spacer(),
-        MaterialButton(onPressed: () {}, padding: EdgeInsets.symmetric(horizontal: 45), child: Text('Message'), color: Colors.white)
+        MaterialButton(onPressed: ()
+        {
+
+            var user=widget.snapshot.data;
+            FirebaseFirestore.instance.collection("chatrooms").where('userids', arrayContains: user.get('userid')).get().then((qs) async
+            {
+              log('Length: '+qs.docs.length.toString());
+              bool exists=false;
+              for(int i=0; i<qs.docs.length; i++)
+              {
+                if (qs.docs[i].get('userids').contains(Provider.of<Authentication>(context, listen: false).getUserUid()) && qs.docs[i].get('type') == 'private')
+                {
+                  //Navigator.pop(context);
+                  Navigator.pushReplacement(context, PageTransition(child: ChatScreen(snapshot: qs.docs[i]), type: PageTransitionType.leftToRight));
+                  exists=true;
+                  break;
+                }
+              }
+              if(!exists) {
+                await FirebaseFirestore.instance.collection("chatrooms").add(
+                    {
+                      'type': 'private',
+                      'createdAt': Timestamp.now(),
+                      'userids': [
+                        Provider.of<Authentication>(context, listen: false)
+                            .getUserUid(),
+                        user.get('userid')
+                      ],
+                      'names': [
+                        Provider
+                            .of<FirebaseOperations>(context, listen: false)
+                            .name,
+                        user.get('username'),
+                      ],
+                      'imageURLs': [
+                        Provider
+                            .of<FirebaseOperations>(context, listen: false)
+                            .imageURL,
+                        user.get('imageURL'),
+                      ],
+                      'lastmessage': '',
+                      'lastmessagesender': '',
+                      'lastmessagetime': Timestamp.now()
+                    }).then((DocRef)
+                {
+                  DocRef.get().then((DS)
+                  {
+                    Navigator.pushReplacement(context, PageTransition(child: ChatScreen(snapshot: DS), type: PageTransitionType.leftToRight));
+
+                  });
+                });
+              }
+
+            });
+
+
+
+        }, padding: EdgeInsets.symmetric(horizontal: 45), child: Text('Message'), color: Colors.white)
       ],
       ),
     );

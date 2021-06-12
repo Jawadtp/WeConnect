@@ -89,6 +89,8 @@ class Profile extends StatelessWidget {
 
                           Provider.of<ProfileHelpers>(context, listen: false).customDivider(context),
                          // Provider.of<ProfileHelpers>(context, listen: false).middleProfile(context, snapshot),
+                          SizedBox(height: 40),
+
                           Provider.of<ProfileHelpers>(context, listen: false).lowerProfile(context, snapshot),
 
 
