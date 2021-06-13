@@ -41,10 +41,21 @@ dependencies:
   custom_navigation_bar: ^0.8.1
   timeago: ^3.0.2
   intl: ^0.17.0
+  shared_preferences: ^2.0.6
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_launcher_name: "^0.0.1"
+  flutter_launcher_icons: "^0.8.0"
+
+flutter_launcher_name:
+  name: "WeConnect"
+
+flutter_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/icon.png"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

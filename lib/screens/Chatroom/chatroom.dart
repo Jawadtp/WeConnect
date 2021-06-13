@@ -72,6 +72,8 @@ class _ChatroomState extends State<Chatroom> {
                 {
                   bool isPrivate = snapshot.data!.docs[index].get('type')=='private';
                   int friend=Provider.of<Authentication>(context, listen: false).getUserUid()==snapshot.data!.docs[index].get('userids')[0]?1:0;
+                  if(snapshot.data!.docs[index].get('userids').contains(Provider.of<Authentication>(context, listen: false).getUserUid())==false) return Container();
+
                   return Container(
 
                       margin: EdgeInsets.only(bottom: 20),
@@ -107,7 +109,8 @@ class _ChatroomState extends State<Chatroom> {
 
                                   SizedBox(height: 4),
                                   snapshot.data!.docs[index].get('lastmessage')==""?Container():
-                                  Text("${snapshot.data!.docs[index].get('lastmessagesender')}: ${snapshot.data!.docs[index].get('lastmessage').length<25?snapshot.data!.docs[index].get('lastmessage'):snapshot.data!.docs[index].get('lastmessage').substring(0,25                                                     )+'...'}", style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 14),),
+
+                                  Text("${snapshot.data!.docs[index].get('lastmessagesender')}: ${snapshot.data!.docs[index].get('lastmessage').length<25?snapshot.data!.docs[index].get('lastmessage'):snapshot.data!.docs[index].get('lastmessage').substring(0,25)+'...'}", style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 14),),
 
                                 ],),
                            ),

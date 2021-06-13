@@ -6,6 +6,7 @@ import 'package:socialmedia/constants/colors.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:socialmedia/database/firebaseops.dart';
 import 'package:socialmedia/screens/login/loginUtils.dart';
+import 'package:socialmedia/sharedPref/sharedPref.dart';
 import '../../database/auth.dart';
 import 'package:provider/provider.dart';
 import 'package:page_transition/page_transition.dart';
@@ -18,7 +19,7 @@ import 'dart:core';
 class LoginHelpers with ChangeNotifier
 {
   ConstantColors constColors = ConstantColors();
-
+  SharedPrefs sharePref = SharedPrefs();
   Widget Logo(BuildContext context)
   {
     return Column(
@@ -212,6 +213,7 @@ class LoginHelpers with ChangeNotifier
                     Provider.of<FirebaseOperations>(context, listen: false).createUserCollection(context, data).whenComplete(()
                     {
                       if( Provider.of<Authentication>(context, listen: false).getUserUid()==null) return;
+                      SharedPrefs.saveUserID('${Provider.of<Authentication>(context, listen: false).getUserUid()}');
                       Navigator.pushReplacement(context, PageTransition(child: Home(), type: PageTransitionType.leftToRight));
                     });
 
@@ -232,6 +234,7 @@ class LoginHelpers with ChangeNotifier
     return showModalBottomSheet(context: context, builder: (context)
     {
       return Container(decoration: BoxDecoration(color: constColors.darkColor, borderRadius: BorderRadius.circular(15)),
+        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
         height: MediaQuery.of(context).size.height*0.1,
         width: MediaQuery.of(context).size.width,
         child: Text(warning, style: TextStyle(color: constColors.whiteColor, fontSize: 16, fontWeight: FontWeight.bold),),
@@ -285,7 +288,7 @@ class LoginHelpers with ChangeNotifier
   LoginRevised(BuildContext context)
   {
     return Container(
-      height: MediaQuery.of(context).size.height*0.495,
+      height: MediaQuery.of(context).size.height*0.56,
       padding: EdgeInsets.symmetric(horizontal: 30),
       margin: EdgeInsets.only(left: 10),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start,
@@ -370,6 +373,7 @@ class LoginHelpers with ChangeNotifier
                     {
                     await Provider.of<FirebaseOperations>(context, listen: false).initUserData(context);
                       log('Loading home screen...');
+                     SharedPrefs.saveUserID('${Provider.of<Authentication>(context, listen: false).getUserUid()}');
                     Navigator.pushAndRemoveUntil(context, PageTransition(child:
                            Home(), type: PageTransitionType.leftToRight), (Route<dynamic> route) => false);
                     }

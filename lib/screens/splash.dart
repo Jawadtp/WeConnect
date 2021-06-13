@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:socialmedia/constants/colors.dart';
 import 'dart:async';
 import 'package:page_transition/page_transition.dart';
+import 'package:socialmedia/database/auth.dart';
+import 'package:socialmedia/database/firebaseops.dart';
 import 'package:socialmedia/screens/login/login.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:socialmedia/sharedPref/sharedPref.dart';
+
+import 'Home/home.dart';
 
 class SplashScreen extends StatefulWidget {
 
@@ -14,11 +21,28 @@ class _SplashScreenState extends State<SplashScreen>
 {
   ConstantColors constColors = ConstantColors();
 
+  String getString(String? x)
+  {
+    return x==null?'':x;
+  }
+
   @override
   void initState()
   {
-    Timer(Duration(seconds: 2), () =>
-          Navigator.pushReplacement(context, PageTransition(child: Login(), type: PageTransitionType.leftToRight))
+    Timer(Duration(seconds: 2), () async
+    {
+          SharedPrefs.getName().then((id) async
+          {
+            if(getString(id).isEmpty)    Navigator.pushReplacement(context, PageTransition(child: Login(), type: PageTransitionType.leftToRight));
+            else
+              {
+                Provider.of<Authentication>(context, listen: false).setUserUid(id);
+                await Provider.of<FirebaseOperations>(context, listen: false).initUserData(context);
+                Navigator.pushAndRemoveUntil(context, PageTransition(child:
+                Home(), type: PageTransitionType.leftToRight), (Route<dynamic> route) => false);
+              }
+          });
+    }
     );
 
     super.initState();

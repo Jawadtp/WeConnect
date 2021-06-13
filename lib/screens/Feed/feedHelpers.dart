@@ -15,6 +15,7 @@ import 'package:socialmedia/database/firebaseops.dart';
 import 'package:socialmedia/screens/Feed/LikesAndComments/LikesCommentFirebase.dart';
 import 'package:socialmedia/screens/Feed/feedDatabase.dart';
 import 'package:socialmedia/screens/Profile/altProfile.dart';
+import 'package:socialmedia/screens/search/followButton.dart';
 import 'dart:io';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:page_transition/page_transition.dart';
@@ -490,7 +491,10 @@ class FeedHelpers with ChangeNotifier
                               ),
                             ),
                             Spacer(),
-                            ElevatedButton(onPressed: (){}, child: Text('Follow',style: TextStyle(fontSize: 15),), ),
+                            snapshot.data?.docs[index].id!=Provider.of<Authentication>(context, listen: false).getUserUid()?
+                            FollowBtn(snap: snapshot.data?.docs[index])
+                                :Container()
+                           // ElevatedButton(onPressed: (){}, child: Text('Follow',style: TextStyle(fontSize: 15),), ),
                           ],),
                         );
                       });

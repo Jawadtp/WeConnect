@@ -6,6 +6,7 @@ import 'dart:core';
 import 'dart:developer';
 
 import 'package:provider/provider.dart';
+import 'package:socialmedia/sharedPref/sharedPref.dart';
 
 import 'firebaseops.dart';
 
@@ -19,6 +20,10 @@ class Authentication with ChangeNotifier {
     return userUid;
   }
 
+  setUserUid(String? x)
+  {
+    userUid=x;
+  }
   Future logIntoAccount(String email, String password) async
   {
     log('Login called');
@@ -77,10 +82,15 @@ class Authentication with ChangeNotifier {
      */
   }
 
-  Future emailLogOut(context)
+  Future emailLogOut(context) async
   {
     userUid=null;
+    Provider.of<FirebaseOperations>(context, listen: false).imageURL="";
+    Provider.of<FirebaseOperations>(context, listen: false).name="";
+    Provider.of<FirebaseOperations>(context, listen: false).email="";
     Provider.of<FirebaseOperations>(context, listen: false).following=[];
+
+    await SharedPrefs.saveUserID('');
     return _auth.signOut();
   }
 
