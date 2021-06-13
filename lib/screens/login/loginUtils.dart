@@ -34,7 +34,7 @@ class LoginUtils with ChangeNotifier
       Provider.of<LoginHelpers>(context, listen: false).SignInSheet(context);
       notifyListeners();
     }
-    else log('Image picked is null');
+    else log('Image picked is NULL');
   }
 
 
