@@ -1,4 +1,6 @@
 
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -18,6 +20,7 @@ class ChatroomHelpers with ChangeNotifier
   ConstantColors constColors = ConstantColors();
 
   TextEditingController msgController = TextEditingController();
+  TextEditingController captionController = TextEditingController();
 
   GlobalKey<FormState> _createChatroomKey = GlobalKey<FormState>(debugLabel: '_SomeState');
 
@@ -349,7 +352,7 @@ class ChatroomHelpers with ChangeNotifier
                         if (msgController.text.isEmpty) return;
                         Provider.of<ChatroomUtils>(context, listen: false)
                             .addChatMessageToDatabase(context,
-                            msgController.text, snapshot.id);
+                            msgController.text, snapshot.id, "text", "");
                         msgController.clear();
                         FocusScope.of(context).unfocus();
                       },))
@@ -359,4 +362,98 @@ class ChatroomHelpers with ChangeNotifier
       ],),),
     );
   }
+
+  showImageSelectionMode(context, chatroomid)
+  {
+    return showModalBottomSheet(context: context, builder: (context)
+    {
+      return Container(decoration: BoxDecoration(color: constColors.darkColor, borderRadius: BorderRadius.circular(15)),
+        padding: EdgeInsets.symmetric(horizontal: 60, vertical: 20),
+        height: MediaQuery.of(context).size.height*0.1,
+        width: MediaQuery.of(context).size.width,
+        child: Row(mainAxisAlignment: MainAxisAlignment.center,
+          children:
+        [
+          MaterialButton(onPressed: ()
+          {
+            Provider.of<ChatroomUtils>(context ,listen: false).pickImageToSend(context, ImageSource.gallery, chatroomid);
+           // Navigator.pop(context);
+
+          }, child: Text('Gallery'), color: Colors.blue,),
+          Spacer(),
+          MaterialButton(onPressed: ()
+          {
+            Provider.of<ChatroomUtils>(context ,listen: false).pickImageToSend(context, ImageSource.camera, chatroomid);
+
+
+           // Navigator.pop(context);
+          }, child: Text('Camera'), color: Colors.blue,),
+
+        ],)
+      );
+    });
+  }
+  showSelectedImage(context, chatroomid)
+  {
+    bool isUploading=false;
+    return showModalBottomSheet(context: context, builder: (context)
+    {
+
+      return StatefulBuilder( builder: (BuildContext context, StateSetter setState)
+      {
+          return Container(decoration: BoxDecoration(color: constColors.darkColor, borderRadius: BorderRadius.circular(15)),
+            padding: EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+            height: MediaQuery.of(context).size.height*0.45,
+            width: MediaQuery.of(context).size.width,
+            child: Column(
+              children:
+              [
+                Container(
+                    height: MediaQuery.of(context).size.height*0.3,
+                    width:  MediaQuery.of(context).size.width*0.85,
+
+                    child: FittedBox(
+                        fit: BoxFit.fill,
+                        child: ClipRRect(
+                            borderRadius: BorderRadius.circular(20),
+                            child: Image.file(File(Provider.of<ChatroomUtils>(context, listen: false).pickedFile!.path))))
+                ),
+                SizedBox(height: 10),
+                Row(
+                  children: [
+                    Container(
+                        width: MediaQuery.of(context).size.width*0.63,
+                        child: TextField(
+                          controller: captionController,
+                          style: TextStyle(color: Colors.white),
+                          decoration: InputDecoration(hintText: 'Add a caption..', hintStyle: TextStyle(color: Colors.white)),)),
+                    Spacer(),
+                    !isUploading?IconButton(icon: Icon(Icons.send, color: Colors.blue,), onPressed: ()
+                    {
+                      setState(()
+                      {
+                        isUploading=true;
+                      });
+                      Provider.of<ChatroomUtils>(context, listen: false).uploadImageToSend(context).then((value)
+                      {
+                        Provider.of<ChatroomUtils>(context, listen: false).addChatMessageToDatabase(context, captionController.text, chatroomid, "image", Provider.of<ChatroomUtils>(context, listen: false).getImageURL()).then((value)
+                        {
+                          captionController.clear();
+                          Navigator.pop(context);
+                          Navigator.pop(context);
+                        });
+                      });
+                    }):
+                        CircularProgressIndicator()
+                  ],
+                ),
+
+
+              ],)
+        );
+      }
+      );
+    });
+  }
+
 }

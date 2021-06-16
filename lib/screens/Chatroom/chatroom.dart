@@ -90,6 +90,7 @@ class _ChatroomState extends State<Chatroom> {
                              Navigator.push(context, PageTransition(child: ChatScreen(snapshot: snapshot.data!.docs[index]), type: PageTransitionType.leftToRight));
                            },
                            child: Container(
+                             color: Colors.transparent,
                              width: MediaQuery.of(context).size.width*0.7,
                              padding: EdgeInsets.symmetric(vertical: 5),
                              child: Column(crossAxisAlignment: CrossAxisAlignment.start,

@@ -8,9 +8,12 @@ import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
 import 'package:socialmedia/constants/colors.dart';
 import 'package:socialmedia/database/auth.dart';
+import 'package:socialmedia/screens/Chatroom/chatroomHelpers.dart';
 import 'package:socialmedia/screens/Chatroom/chatroomSettings/chatroomSettings.dart';
 import 'package:socialmedia/screens/Chatroom/chatroomUtils.dart';
 import 'package:intl/intl.dart';
+import 'dart:io';
+
 ScrollController controller = ScrollController();
 
 class ChatScreen extends StatelessWidget with ChangeNotifier
@@ -22,6 +25,34 @@ class ChatScreen extends StatelessWidget with ChangeNotifier
   TextEditingController msgController = TextEditingController();
 
 
+  imageContainer(context, url, caption)
+  {
+    return Container(
+
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+         
+            margin: EdgeInsets.only(top: 8),
+            height: 300,
+            width: MediaQuery.of(context).size.width*0.6,
+            child: Container(
+              child: FittedBox(
+                  fit: BoxFit.fill,
+                  child: ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Image.network(url)
+                  )
+              ),
+            ),
+          ),
+          SizedBox(height: 8),
+          Text(caption, style: TextStyle(color: Colors.black, fontSize: 16),)
+        ],
+      ),
+    );
+  }
   int getInt(int? x)
   {
     if(x==null) return -1;
@@ -69,6 +100,7 @@ class ChatScreen extends StatelessWidget with ChangeNotifier
             Navigator.of(context).push(MaterialPageRoute(builder: (context) => ChatroomSettings(id: snapshot.id)));
 
           },
+
           child: Container(
 
             child: Row(
@@ -129,7 +161,9 @@ class ChatScreen extends StatelessWidget with ChangeNotifier
                             margin: EdgeInsets.fromLTRB(0,0,10,7),
                             child: Column(crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
-                                Text(msgSnapshot.data!.docs[index].get('message'), style: TextStyle(color: Colors.black, fontSize: 17),),
+                                msgSnapshot.data!.docs[index].get('type')=="text"?
+                                Text(msgSnapshot.data!.docs[index].get('message'), style: TextStyle(color: Colors.black, fontSize: 17),):
+                                    imageContainer(context, msgSnapshot.data!.docs[index].get('postimage'), msgSnapshot.data!.docs[index].get('message')),
                                 SizedBox(height: 8,),
                                 Text(DateFormat.jm().format(msgSnapshot.data!.docs[index].get('time').toDate()), style: TextStyle(color: Colors.black.withOpacity(0.5), fontSize: 10),),
 
@@ -168,7 +202,11 @@ class ChatScreen extends StatelessWidget with ChangeNotifier
                                   ],
                                 ),
                                 SizedBox(height: 8,),
-                                Text(msgSnapshot.data!.docs[index].get('message'), style: TextStyle(color: Colors.black, fontSize: 17),),
+
+                                msgSnapshot.data!.docs[index].get('type')=="text"?
+                                Text(msgSnapshot.data!.docs[index].get('message'), style: TextStyle(color: Colors.black, fontSize: 17),):
+                                imageContainer(context, msgSnapshot.data!.docs[index].get('postimage'), msgSnapshot.data!.docs[index].get('message')),
+
                               ],
                             ),
                           ),
@@ -183,25 +221,38 @@ class ChatScreen extends StatelessWidget with ChangeNotifier
           ),
         ),
 
-        Container(alignment:Alignment(1,0.99),child: Container(margin:EdgeInsets.symmetric(horizontal: 20,vertical: 10),padding:EdgeInsets.only(left: 10),decoration: BoxDecoration(borderRadius: BorderRadius.circular(20),color: /*Color(0xFFe3e3cf)*/ Colors.white,border: Border.all(color:Color(0xFFe3e3cf),width: 2.0 )),
-          child: Row(
-            children: [
-              Expanded(child: TextField(controller: msgController, decoration: InputDecoration(border:InputBorder.none,hintText: "Enter message..",hintStyle: TextStyle(fontSize: 15, color: Colors.black.withOpacity(0.5))),)),
-              Container(decoration:BoxDecoration(borderRadius: BorderRadius.circular(30),color: Colors.blue),child: IconButton(icon: Icon(Icons.send,size: 22,color: Colors.white,),onPressed: ()
-              {
-                if(msgController.text.isEmpty) return;
-                scrollToBottom();
+        Container(alignment:Alignment(1,0.99),child: Row(
+          children: [
+            Container(width: MediaQuery.of(context).size.width*0.78, margin:EdgeInsets.fromLTRB(20,5,0,5 ),padding:EdgeInsets.only(left: 10),decoration: BoxDecoration(borderRadius: BorderRadius.circular(20),color: Colors.white,border: Border.all(color:Color(0xFFe3e3cf),width: 2.0 )),
+              child: Row(
+                children: [
+                  Expanded(child: TextField(controller: msgController, decoration: InputDecoration(border:InputBorder.none,hintText: "Enter message..",hintStyle: TextStyle(fontSize: 15, color: Colors.black.withOpacity(0.5))),)),
+                  IconButton(icon: Icon(Icons.camera_alt), onPressed: ()
+                  {
+                    Provider.of<ChatroomHelpers>(context ,listen: false).showImageSelectionMode(context, snapshot.id);
+                  }),
 
-                Provider.of<ChatroomUtils>(context, listen: false).addChatMessageToDatabase(context, msgController.text, snapshot.id);
-                  msgController.clear();
+                ],
+              ),
+            ),
+            Container(
+                margin: EdgeInsets.only(left: 10),
+                decoration:BoxDecoration(borderRadius: BorderRadius.circular(30),color: Colors.blue),child: IconButton(icon: Icon(Icons.send,size: 22,color: Colors.white,),onPressed: ()
+            {
+              if(msgController.text.isEmpty) return;
+              Provider.of<ChatroomUtils>(context, listen: false).addChatMessageToDatabase(context, msgController.text, snapshot.id, "text", "");
+              scrollToBottom();
 
-                   FocusScope.of(context).unfocus();
+              msgController.clear();
 
-              },))
-            ],
-          ),
-        ),)
-      ],),),
+              FocusScope.of(context).unfocus();
+
+            },))
+          ],
+        ),
+        )
+      ],
+      ),),
     );
   }
 }
