@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:socialmedia/database/auth.dart';
 import 'package:socialmedia/database/firebaseops.dart';
+import 'package:socialmedia/screens/login/loginHelper.dart';
 import '../../constants/colors.dart';
 import 'package:provider/provider.dart';
 import 'dart:io';
@@ -17,6 +18,8 @@ class ChatroomHelpers with ChangeNotifier
   ConstantColors constColors = ConstantColors();
 
   TextEditingController msgController = TextEditingController();
+
+  GlobalKey<FormState> _createChatroomKey = GlobalKey<FormState>(debugLabel: '_SomeState');
 
 
   chatroomAppBar(context)
@@ -70,76 +73,95 @@ class ChatroomHelpers with ChangeNotifier
           height: MediaQuery.of(context).size.height*0.53,
           width: MediaQuery.of(context).size.width,
           decoration: BoxDecoration(color: constColors.darkColor),
-          child: Column(
-            children:
-            [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 150, vertical: 15),
-                child: Divider(thickness: 4, color: constColors.whiteColor,),
-              ),
-              Stack(
-                children:
-                [
-
-                  GestureDetector(onTap:()
+          child: Form(
+            child: Column(
+              children:
+              [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 150, vertical: 15),
+                  child: Divider(thickness: 4, color: constColors.whiteColor,),
+                ),
+                GestureDetector(
+                  onTap: ()
                   {
-
                     Provider.of<ChatroomUtils>(context, listen: false).pickUserAvatar(context, ImageSource.gallery);
 
-                  },child: Provider.of<ChatroomUtils>(context, listen: false).pickedFile!=null?CircleAvatar(backgroundColor: constColors.redColor, radius: 60.0,  backgroundImage:
-                  FileImage(
-                      File(Provider.of<ChatroomUtils>(context, listen: false).pickedFile!.path)
-                  ),):CircleAvatar(backgroundColor: constColors.redColor, radius: 60.0)),
-                  Positioned(
-                      right: 0,
-                      bottom: 0,
-                      child: Icon(Icons.camera_alt,color: Colors.lightBlue, size: 30,)),
-                ],
-              ),
-              SizedBox(height: 10),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                child: TextField(controller: nameController,style: TextStyle(color: Colors.white), decoration: InputDecoration(hintText: "Enter chatroom name", hintStyle: TextStyle(color: constColors.whiteColor, fontWeight: FontWeight.bold, fontSize: 15.0)),),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                child: TextField(controller: descController, style: TextStyle(color: Colors.white),decoration: InputDecoration(hintText: 'Chat room description', hintStyle: TextStyle(color: constColors.whiteColor, fontWeight: FontWeight.bold, fontSize: 15.0)), inputFormatters:
-                [
-                  LengthLimitingTextInputFormatter(100)
-                ],
-                  maxLengthEnforcement: MaxLengthEnforcement.enforced,
-                  maxLines: 3,
-                ),
-              ),
-              SizedBox(height: 15),
-              MaterialButton(color: Colors.lightBlue,
-                onPressed: ()
-              {
-                Provider.of<ChatroomUtils>(context, listen: false).uploadChatroomImage(context).whenComplete(() async
-                {
-                  if (Provider.of<ChatroomUtils>(context, listen: false).avatarURL == null) return;
-                  Map<String, dynamic> m =
-                  {
-                    'type':'public',
-                    'name':nameController.text,
-                    'description':descController.text,
-                    'imageURL': Provider.of<ChatroomUtils>(context, listen: false).avatarURL,
-                    'createdAt': Timestamp.now(),
-                    'createdBy': Provider.of<FirebaseOperations>(context, listen: false).name,
-                    'lastmessage': '',
-                    'lastmessagesender': '',
-                    'lastmessagetime': Timestamp.now(),
-                    'userids':
-                        [
-                          Provider.of<Authentication>(context, listen: false).getUserUid(),
-                        ]
-                  };
-                  await Provider.of<ChatroomUtils>(context, listen: false).createChatroom(m, context);
-                  Navigator.pop(context);
-                });
-              }, child: Text('Create Chatroom', style: TextStyle(color: Colors.white),),),
+                  },
+                  child: Container(
+                    child: Stack(
 
-            ],),),
+                      children:
+                      [
+
+                        GestureDetector(onTap:()
+                        {
+                          Provider.of<ChatroomUtils>(context, listen: false).pickUserAvatar(context, ImageSource.gallery);
+
+                        },child: Provider.of<ChatroomUtils>(context, listen: false).pickedFile!=null?CircleAvatar(backgroundColor: constColors.redColor, radius: 60.0,  backgroundImage:
+                        FileImage(
+                            File(Provider.of<ChatroomUtils>(context, listen: false).pickedFile!.path)
+                        ),):CircleAvatar(backgroundColor: constColors.redColor, radius: 60.0)),
+                        Positioned(
+                            right: 0,
+                            bottom: 0,
+                            child: Icon(Icons.camera_alt,color: Colors.lightBlue, size: 30,)),
+                      ],
+                    ),
+                  ),
+                ),
+                SizedBox(height: 10),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                  child: TextFormField(validator:
+                   (value)
+                  {
+                    if(value==null || value.length<3) return 'Chatroom name must be at least 3 characters long.';
+                  },
+                    controller: nameController,style: TextStyle(color: Colors.white), decoration: InputDecoration(hintText: "Enter chatroom name", hintStyle: TextStyle(color: constColors.whiteColor, fontWeight: FontWeight.bold, fontSize: 15.0)),),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                  child: TextFormField(controller: descController, style: TextStyle(color: Colors.white),decoration: InputDecoration(hintText: 'Chat room description', hintStyle: TextStyle(color: constColors.whiteColor, fontWeight: FontWeight.bold, fontSize: 15.0)), inputFormatters:
+                  [
+                    LengthLimitingTextInputFormatter(100)
+                  ],
+                    maxLengthEnforcement: MaxLengthEnforcement.enforced,
+                    maxLines: 3,
+                  ),
+                ),
+                SizedBox(height: 15),
+                MaterialButton(color: Colors.lightBlue,
+                  onPressed: ()
+                {
+                  if(!_createChatroomKey.currentState!.validate()) return;
+                  if(nameController.text.isEmpty) return;
+
+                  Provider.of<ChatroomUtils>(context, listen: false).uploadChatroomImage(context).whenComplete(() async
+                  {
+                    if (Provider.of<ChatroomUtils>(context, listen: false).avatarURL == null) return Provider.of<LoginHelpers>(context, listen: false).WarningSheet(context, 'Please select an avatar for the group.');
+                    Map<String, dynamic> m =
+                    {
+                      'type':'public',
+                      'name':nameController.text,
+                      'description':descController.text,
+                      'imageURL': Provider.of<ChatroomUtils>(context, listen: false).avatarURL,
+                      'createdAt': Timestamp.now(),
+                      'createdBy': Provider.of<FirebaseOperations>(context, listen: false).name,
+                      'lastmessage': '',
+                      'lastmessagesender': '',
+                      'lastmessagetime': Timestamp.now(),
+                      'userids':
+                          [
+                            Provider.of<Authentication>(context, listen: false).getUserUid(),
+                          ]
+                    };
+                    await Provider.of<ChatroomUtils>(context, listen: false).createChatroom(m, context);
+                    Navigator.pop(context);
+                  });
+                }, child: Text('Create Chatroom', style: TextStyle(color: Colors.white),),),
+
+              ],),
+          ),),
       );
     });
 

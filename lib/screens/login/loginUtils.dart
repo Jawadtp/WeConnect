@@ -10,9 +10,9 @@ import 'loginHelper.dart';
 class LoginUtils with ChangeNotifier
 {
   final picker = ImagePicker();
-  String? avatarURL;
+  String avatarURL='';
   PickedFile? pickedFile;
-  String? getAvatarURL()
+  String getAvatarURL()
   {
     return avatarURL;
   }
@@ -30,8 +30,8 @@ class LoginUtils with ChangeNotifier
       pickedFile=pickedFileTemp;
       log('Image picked. Path: '+pickedFile!.path);
      // Provider.of<LoginServices>(context, listen: false).showUserAvatar(context);
-      Navigator.pop(context); //Model bottoms sheets stack up on each other unless they are closed manually. Hence, it makes sense to programmatically close them.
-      Provider.of<LoginHelpers>(context, listen: false).SignInSheet(context);
+    //  Navigator.pop(context); //Model bottoms sheets stack up on each other unless they are closed manually. Hence, it makes sense to programmatically close them.
+     // Provider.of<LoginHelpers>(context, listen: false).SignInSheet(context);
       notifyListeners();
     }
     else log('Image picked is NULL');
