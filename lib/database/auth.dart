@@ -120,6 +120,10 @@ class Authentication with ChangeNotifier {
     log('Google User Uid: $userUid');
     notifyListeners();
   }
+  Future forgotPassword(String email)
+  {
+    return _auth.sendPasswordResetEmail(email: email);
+  }
 
   Future googleSignOut()
   {

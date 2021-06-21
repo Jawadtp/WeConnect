@@ -22,7 +22,7 @@ class LoginHelpers with ChangeNotifier
   ConstantColors constColors = ConstantColors();
   SharedPrefs sharePref = SharedPrefs();
   final _formKey = GlobalKey<FormState>();
-
+  TextEditingController forgotPasswordController = TextEditingController();
   Widget Logo(BuildContext context)
   {
     return Column(
@@ -439,7 +439,19 @@ class LoginHelpers with ChangeNotifier
               ),
             ],)
         ),
-        SizedBox(height: 28),
+        SizedBox(height: 10),
+        Row(
+          children: [
+            Spacer(),
+            GestureDetector(
+                onTap: ()
+                {
+                  showForgotPassword(context);
+                },
+                child: Text('Forgot password?', style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold))),
+          ],
+        ),
+        SizedBox(height: 30),
         Center(
           child: InkWell(
             onTap: () async
@@ -489,6 +501,90 @@ class LoginHelpers with ChangeNotifier
         )
       ],),
     );
+  }
+
+  showForgotPassword(BuildContext context)
+  {
+    String warning='';
+    bool isReset = false;
+    return showModalBottomSheet(context: context, isScrollControlled: true, builder: (context)
+    {
+      return StatefulBuilder(builder: (context, setThisState) {
+        return Padding(
+          padding: EdgeInsets.only(bottom: MediaQuery
+              .of(context)
+              .viewInsets
+              .bottom),
+          child: Container(
+            height: MediaQuery
+                .of(context)
+                .size
+                .height * 0.25,
+            width: MediaQuery
+                .of(context)
+                .size
+                .width,
+            decoration: BoxDecoration(color: constColors.blueGreyColor,
+                borderRadius: BorderRadius.only(topLeft: Radius.circular(15),
+                    topRight: Radius.circular(15))),
+
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 15),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start,
+                children:
+              [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 150.0),
+                  child: Divider(thickness: 4.0, color: constColors.whiteColor,),
+                ),
+                Container(
+                    child: TextField(
+                      controller: forgotPasswordController,
+                      style: TextStyle(color: Colors.white),
+                      decoration: InputDecoration(hintText: 'Enter email',
+                          hintStyle: TextStyle(
+                              color: Colors.white.withOpacity(0.5))),)),
+                SizedBox(height: 8),
+                Text(warning, style: TextStyle(color: Colors.red)),
+                Spacer(),
+                isReset?
+                    Center(
+                      child: Container(
+                        margin: EdgeInsets.only(bottom: 30),
+                          child: Text('Password reset email sent', style: TextStyle(color: Colors.white, fontSize: 18))),
+                    ):
+                Container(
+                    margin: EdgeInsets.only(bottom: 20),
+                    child: Center(
+                      child: MaterialButton(onPressed: ()
+                      {
+                        if(!RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(forgotPasswordController.text))
+                        setThisState(()
+                        {
+                          log('Invalid email ID');
+                          warning="Please enter a valid email address.";
+                        });
+                        else setThisState(()
+                        {
+                          Provider.of<Authentication>(context, listen: false).forgotPassword(forgotPasswordController.text);
+                          log('Reset password sent.');
+                          warning="";
+                          isReset=true;
+                        });
+
+
+                      },
+                          child: Text('Reset password',
+                              style: TextStyle(color: Colors.white)),
+                          color: Colors.blue),
+                    )),
+              ],),
+            ),
+
+          ),
+        );
+      });
+    });
   }
 
   SignUpForm(BuildContext context)

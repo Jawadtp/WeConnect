@@ -229,6 +229,7 @@ class ProfileHelpers with ChangeNotifier
                   else return ListView.builder(itemCount: snapshot.data?.docs.length,itemBuilder: (context, index)
                   {
                     return Container(
+                      margin: EdgeInsets.symmetric(vertical: 8),
                       child: Row(children:
                       [
                         GestureDetector(
