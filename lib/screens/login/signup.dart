@@ -180,6 +180,8 @@ class _SignUpState extends State<SignUp> with ChangeNotifier {
                   onTap: () async
                   {
                     if(!_formKey.currentState!.validate()) return;
+                    if(Provider.of<LoginUtils>(context, listen: false).pickedFile==null)
+                      return Provider.of<LoginHelpers>(context, listen: false).WarningSheet(context, 'Please pick a user avatar');
                     setState(() {
                       isLoading=true;
                     });

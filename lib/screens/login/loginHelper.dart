@@ -366,140 +366,155 @@ class LoginHelpers with ChangeNotifier
 
   LoginRevised(BuildContext context)
   {
-    return Container(
-      height: MediaQuery.of(context).size.height*0.56,
-      padding: EdgeInsets.symmetric(horizontal: 30),
-      margin: EdgeInsets.only(left: 10),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start,
-        children:
-      [
-        Text('Login', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 25)),
-        SizedBox(height: 12),
-        Text('Please login to continue', style: TextStyle(color: Colors.white.withOpacity(0.5),  fontSize: 16)),
-        SizedBox(height: 20),
+    bool isLogging=false;
+    return StatefulBuilder(builder: (context, setState){
+      return Container(
+        height: MediaQuery.of(context).size.height*0.56,
+        padding: EdgeInsets.symmetric(horizontal: 30),
+        margin: EdgeInsets.only(left: 10),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start,
+          children:
+        [
+          Text('Login', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 25)),
+          SizedBox(height: 12),
+          Text('Please login to continue', style: TextStyle(color: Colors.white.withOpacity(0.5),  fontSize: 16)),
+          SizedBox(height: 20),
 
-        Container(
-          decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(10),
-          ),
-
-          width: MediaQuery.of(context).size.width*0.8,
-            child:
-          Row(children:
-          [
-            SizedBox(width: 10),
-            Icon(Icons.email, color: Colors.white.withOpacity(0.6),),
-            Container(
-                width: MediaQuery.of(context).size.width*0.6,
-                child: TextField(
-                  controller: emailController,
-                  style: TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                      contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                      border: InputBorder.none,
-                      hintText: 'EMAIL',
-                      hintStyle: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 11)
-                  ),
-
-                )
-            ),
-          ],)
-        ),
-
-        SizedBox(height: 15),
-
-        Container(
+          Container(
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(10),
+                color: Colors.white.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(10),
             ),
 
             width: MediaQuery.of(context).size.width*0.8,
-            child:
+              child:
             Row(children:
             [
               SizedBox(width: 10),
-              Icon(Icons.lock, color: Colors.white.withOpacity(0.6),),
+              Icon(Icons.email, color: Colors.white.withOpacity(0.6),),
               Container(
                   width: MediaQuery.of(context).size.width*0.6,
                   child: TextField(
-                    controller: passwordController,
+                    controller: emailController,
                     style: TextStyle(color: Colors.white),
-                    obscureText: true,
                     decoration: InputDecoration(
-
                         contentPadding: EdgeInsets.symmetric(horizontal: 10),
                         border: InputBorder.none,
-                        hintText: 'PASSWORD',
+                        hintText: 'EMAIL',
                         hintStyle: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 11)
                     ),
 
                   )
               ),
             ],)
-        ),
-        SizedBox(height: 10),
-        Row(
-          children: [
-            Spacer(),
-            GestureDetector(
-                onTap: ()
-                {
-                  showForgotPassword(context);
-                },
-                child: Text('Forgot password?', style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold))),
-          ],
-        ),
-        SizedBox(height: 30),
-        Center(
-          child: InkWell(
-            onTap: () async
-            {
-              if(emailController.text.isNotEmpty && passwordController.text.isNotEmpty)
-                Provider.of<Authentication>(context, listen: false).logIntoAccount(emailController.text, passwordController.text).whenComplete(() async
-                {
-                  if(Provider.of<Authentication>(context, listen: false).getUserUid()==null) WarningSheet(context, 'Invalid user name or password');
-                  else
-                    {
-                    await Provider.of<FirebaseOperations>(context, listen: false).initUserData(context);
-                      log('Loading home screen...');
-                     SharedPrefs.saveUserID('${Provider.of<Authentication>(context, listen: false).getUserUid()}');
-                    Navigator.pushAndRemoveUntil(context, PageTransition(child:
-                           Home(), type: PageTransitionType.leftToRight), (Route<dynamic> route) => false);
-                    }
-                });
-              else WarningSheet(context, 'Please enter a valid email ID');
-            },
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 55, vertical: 16),
+          ),
+
+          SizedBox(height: 15),
+
+          Container(
               decoration: BoxDecoration(
-                color: Color(0xFF45f7bf),
-                borderRadius: BorderRadius.circular(40),
+                color: Colors.white.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(10),
               ),
-              child: Text('LOGIN', style: TextStyle(color: Colors.black, fontSize: 16))
+
+              width: MediaQuery.of(context).size.width*0.8,
+              child:
+              Row(children:
+              [
+                SizedBox(width: 10),
+                Icon(Icons.lock, color: Colors.white.withOpacity(0.6),),
+                Container(
+                    width: MediaQuery.of(context).size.width*0.6,
+                    child: TextField(
+                      controller: passwordController,
+                      style: TextStyle(color: Colors.white),
+                      obscureText: true,
+                      decoration: InputDecoration(
+
+                          contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                          border: InputBorder.none,
+                          hintText: 'PASSWORD',
+                          hintStyle: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 11)
+                      ),
+
+                    )
+                ),
+              ],)
+          ),
+          SizedBox(height: 10),
+          Row(
+            children: [
+              Spacer(),
+              GestureDetector(
+                  onTap: ()
+                  {
+                    showForgotPassword(context);
+                  },
+                  child: Text('Forgot password?', style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold))),
+            ],
+          ),
+          SizedBox(height: 30),
+          Center(
+            child: InkWell(
+              onTap: () async
+              {
+                if(emailController.text.isNotEmpty && passwordController.text.isNotEmpty)
+                  {
+                  setState(()
+                  {
+                    isLogging=true;
+                  });
+                  Provider.of<Authentication>(context, listen: false).logIntoAccount(emailController.text, passwordController.text).whenComplete(() async
+                  {
+                    if(Provider.of<Authentication>(context, listen: false).getUserUid()==null)
+                    {
+                      setState(()
+                      {
+                        isLogging=false;
+                      });
+                      WarningSheet(context, 'Invalid user name or password');
+                    }
+                    else
+                      {
+                      await Provider.of<FirebaseOperations>(context, listen: false).initUserData(context);
+                        log('Loading home screen...');
+                       SharedPrefs.saveUserID('${Provider.of<Authentication>(context, listen: false).getUserUid()}');
+                      Navigator.pushAndRemoveUntil(context, PageTransition(child:
+                             Home(), type: PageTransitionType.leftToRight), (Route<dynamic> route) => false);
+                      }
+                  });}
+                else WarningSheet(context, 'Please enter a valid email ID');
+              },
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 55, vertical: 16),
+                decoration: BoxDecoration(
+                  color: Color(0xFF45f7bf),
+                  borderRadius: BorderRadius.circular(40),
+                ),
+                child: Text(isLogging?'Please wait..':'LOGIN', style: TextStyle(color: Colors.black, fontSize: 16))
+              ),
             ),
           ),
-        ),
-        Spacer(),
-        Center(
-          child: Row(
-            children:
-          [
-            Spacer(),
-            Text("Don't have an account?  ", style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 16)),
-            InkWell(
-                onTap: ()
-                {
-               //   SignInSheet(context);
-           //       Navigator.push(context, PageTransition(child: SignUp(), type: PageTransitionType.leftToRight));
-                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => SignUp()));
-                },
-                child: Text('Sign up', style: TextStyle(color: Color(0xFF45f7bf),fontSize: 16, fontWeight: FontWeight.bold))),
-            Spacer(),
-          ],),
-        )
-      ],),
+          Spacer(),
+          Center(
+            child: Row(
+              children:
+            [
+              Spacer(),
+              Text("Don't have an account?  ", style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 16)),
+              InkWell(
+                  onTap: ()
+                  {
+                 //   SignInSheet(context);
+             //       Navigator.push(context, PageTransition(child: SignUp(), type: PageTransitionType.leftToRight));
+                    Navigator.of(context).push(MaterialPageRoute(builder: (context) => SignUp()));
+                  },
+                  child: Text('Sign up', style: TextStyle(color: Color(0xFF45f7bf),fontSize: 16, fontWeight: FontWeight.bold))),
+              Spacer(),
+            ],),
+          )
+        ],),
+      );}
     );
   }
 

@@ -40,8 +40,9 @@ class FeedHelpers with ChangeNotifier
     return AppBar(
       centerTitle: true,
       backgroundColor: constColors.blueGreyColor.withOpacity(0.4),
-        leading: IconButton(
-            icon: Icon(Icons.menu),
+      leading: IconButton(
+            icon: Icon(Icons.camera),
+            color: Colors.transparent,
             onPressed: ()
             {
 
@@ -727,106 +728,131 @@ class FeedHelpers with ChangeNotifier
   {
     return showModalBottomSheet(context: context, isScrollControlled: true, builder: (context)
     {
-      return Padding(
-        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-        child: Container(
+      bool isUploading=false;
+      return StatefulBuilder(builder:(context, setState)
+      {
 
-          height: MediaQuery.of(context).size.height*0.6,
-          decoration: BoxDecoration(
-              color: constColors.blueGreyColor,
-              borderRadius: BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20))
-          ),
+        return Padding(
+          padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+          child: Container(
 
-          child: Column(
-            children:
-            [
-              Container(
-                margin: EdgeInsets.symmetric(horizontal: 15),
-                width: MediaQuery.of(context).size.width*0.4,
-                height: 1.5,
-                color: constColors.whiteColor,
-              ),
-              SizedBox(height: 15),
-              Container(
-                  height: MediaQuery.of(context).size.height*0.3,
-                  width:  MediaQuery.of(context).size.width*0.85,
+            height: MediaQuery.of(context).size.height*0.6,
+            decoration: BoxDecoration(
+                color: constColors.blueGreyColor,
+                borderRadius: BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20))
+            ),
 
-                  child: FittedBox(
-                      fit: BoxFit.fill,
-                      child: ClipRRect(
-                          borderRadius: BorderRadius.circular(20),
-                          child: Image.file(File(Provider.of<UploadPost>(context, listen: false).pickedFile!.path))))
-              ),
-              SizedBox(height: 15),
-              Row(
-                children: [
-                  Container(
-                    margin: EdgeInsets.only(left: 30),
-                    height: 100,
-                    width: 5,
-                    color: constColors.blueColor,
+            child: Column(
+              children:
+              [
+                Container(
+                  margin: EdgeInsets.symmetric(horizontal: 15),
+                  width: MediaQuery.of(context).size.width*0.4,
+                  height: 1.5,
+                  color: constColors.whiteColor,
+                ),
+                SizedBox(height: 15),
+                Container(
+                    height: MediaQuery.of(context).size.height*0.3,
+                    width:  MediaQuery.of(context).size.width*0.85,
 
-                  ),
-                  SizedBox(width: 10),
-                  Container(
-                      width: MediaQuery.of(context).size.width*0.88,
-                      child: TextField(
-                          controller: captionController,
-                          style: TextStyle(color: constColors.lightBlueColor),
-                          inputFormatters:
-                          [
-                            LengthLimitingTextInputFormatter(100)
-                          ],
-                          maxLengthEnforcement: MaxLengthEnforcement.enforced,
-                          decoration: InputDecoration(
+                    child: FittedBox(
+                        fit: BoxFit.fill,
+                        child: ClipRRect(
+                            borderRadius: BorderRadius.circular(20),
+                            child: Image.file(File(Provider.of<UploadPost>(context, listen: false).pickedFile!.path))))
+                ),
+                SizedBox(height: 15),
+                Row(
+                  children: [
+                    Container(
+                      margin: EdgeInsets.only(left: 30),
+                      height: 100,
+                      width: 5,
+                      color: constColors.blueColor,
 
-                              border: InputBorder.none,
-                              hintText: 'Post a caption..',
-                              hintStyle: TextStyle(
-                                color: constColors.whiteColor,
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold
-                              )
+                    ),
+                    SizedBox(width: 10),
+                    Container(
+                        width: MediaQuery.of(context).size.width*0.88,
+                        child: TextField(
+                            controller: captionController,
+                            style: TextStyle(color: constColors.lightBlueColor),
+                            inputFormatters:
+                            [
+                              LengthLimitingTextInputFormatter(100)
+                            ],
+                            maxLengthEnforcement: MaxLengthEnforcement.enforced,
+                            decoration: InputDecoration(
 
-                          ),
-                          maxLines: 5
-                      )
-                  ),
-                ],
-              ),
-              SizedBox(height: 20,),
+                                border: InputBorder.none,
+                                hintText: 'Post a caption..',
+                                hintStyle: TextStyle(
+                                  color: constColors.whiteColor,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold
+                                )
 
-              ElevatedButton(
-                onPressed: ()
-                {
+                            ),
+                            maxLines: 5
+                        )
+                    ),
+                  ],
+                ),
+                SizedBox(height: 20,),
 
-                  Provider.of<UploadPost>(context, listen: false).uploadPostImage(context).whenComplete(()
-                  {
-                    if(Provider.of<UploadPost>(context, listen: false).postURL==null) return;
-                    Map<String, dynamic> m =
+                ElevatedButton(
+                  onPressed: () {
+                    setState(()
                     {
-
-                      'postURL': '${Provider.of<UploadPost>(context, listen: false).postURL}',
-                      'caption': captionController.text,
-                      'userid': '${Provider.of<Authentication>(context, listen: false).getUserUid()}',
-                      'username': '${Provider.of<FirebaseOperations>(context, listen: false).name}',
-                      'userimage': '${Provider.of<FirebaseOperations>(context, listen: false).imageURL}',
-                      'useremail': '${Provider.of<FirebaseOperations>(context, listen: false).email}',
-                      'time': Timestamp.now(),
-                      'likes':0,
-                      'comments':0
-                    };
-                    Provider.of<UploadPost>(context, listen: false).uploadPostToDB(context, m).whenComplete(()
-                    {
-                      captionController.clear();
-                      Navigator.pop(context);
+                      isUploading=true;
                     });
-                  });
-                },
-                child: Text("Share", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),)
-            ],
+                    Provider.of<UploadPost>(context, listen: false)
+                        .uploadPostImage(context)
+                        .whenComplete(() {
+                      if (Provider
+                          .of<UploadPost>(context, listen: false)
+                          .postURL == null) return;
+                      Map<String, dynamic> m =
+                      {
+
+                        'postURL': '${Provider
+                            .of<UploadPost>(context, listen: false)
+                            .postURL}',
+                        'caption': captionController.text,
+                        'userid': '${Provider.of<Authentication>(
+                            context, listen: false).getUserUid()}',
+                        'username': '${Provider
+                            .of<FirebaseOperations>(context, listen: false)
+                            .name}',
+                        'userimage': '${Provider
+                            .of<FirebaseOperations>(context, listen: false)
+                            .imageURL}',
+                        'useremail': '${Provider
+                            .of<FirebaseOperations>(context, listen: false)
+                            .email}',
+                        'time': Timestamp.now(),
+                        'likes': 0,
+                        'comments': 0
+                      };
+                      Provider.of<UploadPost>(context, listen: false)
+                          .uploadPostToDB(context, m)
+                          .whenComplete(() {
+                        captionController.clear();
+                        setState(()
+                        {
+                          isUploading=false;
+                        });
+                        Navigator.pop(context);
+                      });
+                    });
+                  },
+                  child: Text(isUploading?'Uploading..':"Share", style: TextStyle(fontSize: 18,
+                      fontWeight: FontWeight.bold),),)
+              ],
+            ),
           ),
-        ),
+        );}
       );
     });
 

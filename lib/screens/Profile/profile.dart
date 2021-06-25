@@ -18,7 +18,7 @@ class Profile extends StatelessWidget {
       centerTitle: true,
       leading: IconButton(
         icon: Icon(EvaIcons.settings2Outline),
-        color: constColors.lightBlueColor,
+        color: constColors.transparent,
         onPressed: ()
         {
 
