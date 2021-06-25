@@ -24,6 +24,7 @@ class LoginUtils with ChangeNotifier
   {
     final pickedFileTemp = await picker.getImage(
       source: source,
+      imageQuality: 50
     );
     if(pickedFileTemp!=null)
     {

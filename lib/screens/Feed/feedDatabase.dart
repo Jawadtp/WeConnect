@@ -19,6 +19,7 @@ class UploadPost with ChangeNotifier
   {
     final pickedFileTemp = await ImagePicker().getImage(
       source: source,
+      imageQuality: 50
     );
     if(pickedFileTemp!=null)
     {
