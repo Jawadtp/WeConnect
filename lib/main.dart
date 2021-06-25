@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:socialmedia/database/auth.dart';
 import 'package:socialmedia/screens/Chatroom/chatScreen.dart';
 import 'package:socialmedia/screens/Chatroom/chatroomHelpers.dart';
@@ -19,6 +20,7 @@ import 'screens/Feed/feedDatabase.dart';
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   runApp(MyApp());
 }
 

@@ -203,7 +203,7 @@ class _SignUpState extends State<SignUp> with ChangeNotifier {
                           'posts':0,
                           'description': "",
                         };
-                        Provider.of<FirebaseOperations>(context, listen: false).createUserCollection(context, data).whenComplete(()
+                        Provider.of<FirebaseOperations>(context, listen: false).createUserCollection(context, data).whenComplete(() async
                         {
                           if( Provider.of<Authentication>(context, listen: false).getUserUid()==null)
                             {
@@ -213,6 +213,7 @@ class _SignUpState extends State<SignUp> with ChangeNotifier {
                               return;
                             }
                           SharedPrefs.saveUserID('${Provider.of<Authentication>(context, listen: false).getUserUid()}');
+                          await Provider.of<FirebaseOperations>(context, listen: false).initUserData(context);
                           Navigator.pushReplacement(context, PageTransition(child: Home(), type: PageTransitionType.leftToRight));
                           setState(() {
                             isLoading=false;

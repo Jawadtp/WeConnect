@@ -96,6 +96,8 @@ class FeedHelpers with ChangeNotifier
             {
               if(snapshot.connectionState==ConnectionState.waiting)
                 return Center(child: CircularProgressIndicator(),);
+              if(snapshot.data?.docs.length==0 || Provider.of<FirebaseOperations>(context, listen: false).following.length==0)
+                return Center(child: Container(child: Text('No posts to show', style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 16))));
               if(snapshot.hasData) return ListView.builder(
                   cacheExtent: MediaQuery.of(context).size.height*5,
                   itemCount: snapshot.data?.docs.length,

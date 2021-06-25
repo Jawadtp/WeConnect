@@ -82,6 +82,18 @@ class UploadPost with ChangeNotifier
     {
     'posts':FieldValue.increment(-1)
     });
+    FirebaseFirestore.instance.collection('posts').doc(postid).collection("likes").get().then((snapshot) {
+      for (DocumentSnapshot doc in snapshot.docs)
+      {
+        doc.reference.delete();
+      };
+    });
+    FirebaseFirestore.instance.collection('posts').doc(postid).collection("comments").get().then((snapshot) {
+      for (DocumentSnapshot doc in snapshot.docs)
+      {
+        doc.reference.delete();
+      };
+    });
     return FirebaseFirestore.instance.collection("posts").doc(postid).delete();
   }
 }
