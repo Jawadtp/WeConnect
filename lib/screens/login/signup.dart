@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:page_transition/page_transition.dart';
@@ -185,6 +186,19 @@ class _SignUpState extends State<SignUp> with ChangeNotifier {
                     setState(() {
                       isLoading=true;
                     });
+                    var nameCheck = await FirebaseFirestore.instance.collection("users").where('username', isEqualTo: usernameController.text).get();
+                    var emailCheck = await FirebaseFirestore.instance.collection("users").where('useremail', isEqualTo: emailController.text).get();
+
+                    if(nameCheck.docs.length>0 || emailCheck.docs.length>0)
+                      setState(() {
+                        isLoading=false;
+                      });
+                    if(nameCheck.docs.length>0)
+                      return Provider.of<LoginHelpers>(context, listen: false).WarningSheet(context, 'Username is already picked');
+                    if(emailCheck.docs.length>0)
+                      return Provider.of<LoginHelpers>(context, listen: false).WarningSheet(context, 'Email is already picked');
+
+
                     Provider.of<Authentication>(context, listen: false).createAccount(emailController.text, passwordController.text).whenComplete(()
                     {
                       if(Provider.of<Authentication>(context, listen: false).getUserUid()==null) log('Invalid email ID');
@@ -224,6 +238,7 @@ class _SignUpState extends State<SignUp> with ChangeNotifier {
                       });
 
                     });
+
                   },
                   child: Container(
                       padding: EdgeInsets.symmetric(horizontal: 55, vertical: 16),
