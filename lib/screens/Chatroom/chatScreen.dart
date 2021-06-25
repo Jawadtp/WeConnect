@@ -6,6 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:socialmedia/constants/colors.dart';
 import 'package:socialmedia/database/auth.dart';
@@ -14,6 +15,7 @@ import 'package:socialmedia/screens/Chatroom/chatroomSettings/chatroomSettings.d
 import 'package:socialmedia/screens/Chatroom/chatroomUtils.dart';
 import 'package:intl/intl.dart';
 import 'dart:io';
+
 import 'videocall/call.dart';
 
 ScrollController controller = ScrollController();
@@ -128,8 +130,10 @@ class ChatScreen extends StatelessWidget with ChangeNotifier
         [
           IconButton(
               icon: Icon(Icons.video_call, color: constColors.lightBlueColor, size: 30,),
-              onPressed: ()
+              onPressed: () async
               {
+                await Permission.microphone.request();
+                await Permission.camera.request();
                 Navigator.push(context, MaterialPageRoute(builder: (context) => CallPage(channelName: snapshot.id, role: ClientRole.Broadcaster)));
                 // Navigator.of(context).push(MaterialPageRoute(builder: (context) => IndexPage()));
               }

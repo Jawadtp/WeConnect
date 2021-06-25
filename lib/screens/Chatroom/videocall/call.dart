@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:agora_rtc_engine/rtc_engine.dart';
 import 'package:agora_rtc_engine/rtc_local_view.dart' as RtcLocalView;
 import 'package:agora_rtc_engine/rtc_remote_view.dart' as RtcRemoteView;
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
@@ -82,7 +83,10 @@ class _CallPageState extends State<CallPage>
 
     String token = (convert.jsonDecode(res.body) as Map<String, dynamic>)['token'];
     log('Token generated: ' + token);
-    await _engine!.joinChannel(token, getString(widget.channelName), null, 0);
+  //  await _engine!.joinChannel(token, getString(widget.channelName), null, 0);
+    await _engine!.registerLocalUserAccount(APP_ID, getString(Provider.of<Authentication>(context, listen: false).getUserUid()));
+    await _engine!.joinChannelWithUserAccount(token, getString(widget.channelName), getString(Provider.of<Authentication>(context, listen: false).getUserUid()));
+
   }
 
   /// Create agora sdk instance and initialize
@@ -100,14 +104,23 @@ class _CallPageState extends State<CallPage>
         final info = 'onError: $code';
         _infoStrings.add(info);
       });
-    }, joinChannelSuccess: (channel, uid, elapsed) {
-      setState(() {
-        final info = 'onJoinChannel: $channel, uid: $uid';
-        _infoStrings.add(info);
-      });
+    }, joinChannelSuccess: (channel, uid, elapsed)  async
+    {
+
+        var userInfo = await _engine!.getUserInfoByUid(uid);
+        DocumentSnapshot joinedUser = await FirebaseFirestore.instance.collection("users").doc(userInfo.userAccount).get();
+        
+        final info = 'onJoinChannel: $channel, uid: $uid, username: ${joinedUser.get('username')}';
+
+       // String info="User joined";
+        setState(() {
+          _infoStrings.add(info);
+        });
+
     }, leaveChannel: (stats) {
       setState(() {
         _infoStrings.add('onLeaveChannel');
+
         _users.clear();
       });
     }, userJoined: (uid, elapsed) {
@@ -332,7 +345,7 @@ class _CallPageState extends State<CallPage>
         child: Stack(
           children: <Widget>[
             _viewRows(),
-          //  _panel(),
+           // _panel(),
             _users.length==0?showWaiting():Container(),
             _toolbar(),
           ],

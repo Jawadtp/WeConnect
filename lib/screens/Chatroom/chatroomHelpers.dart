@@ -115,16 +115,13 @@ class ChatroomHelpers with ChangeNotifier
                 SizedBox(height: 10),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                  child: TextFormField(validator:
-                   (value)
-                  {
-                    if(value==null || value.length<3) return 'Chatroom name must be at least 3 characters long.';
-                  },
+                  child: TextField(
+
                     controller: nameController,style: TextStyle(color: Colors.white), decoration: InputDecoration(hintText: "Enter chatroom name", hintStyle: TextStyle(color: constColors.whiteColor, fontWeight: FontWeight.bold, fontSize: 15.0)),),
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                  child: TextFormField(controller: descController, style: TextStyle(color: Colors.white),decoration: InputDecoration(hintText: 'Chat room description', hintStyle: TextStyle(color: constColors.whiteColor, fontWeight: FontWeight.bold, fontSize: 15.0)), inputFormatters:
+                  child: TextField(controller: descController, style: TextStyle(color: Colors.white),decoration: InputDecoration(hintText: 'Chat room description', hintStyle: TextStyle(color: constColors.whiteColor, fontWeight: FontWeight.bold, fontSize: 15.0)), inputFormatters:
                   [
                     LengthLimitingTextInputFormatter(100)
                   ],
@@ -136,8 +133,7 @@ class ChatroomHelpers with ChangeNotifier
                 MaterialButton(color: Colors.lightBlue,
                   onPressed: ()
                 {
-                  if(!_createChatroomKey.currentState!.validate()) return;
-                  if(nameController.text.isEmpty) return;
+                  if(nameController.text.isEmpty) return Provider.of<LoginHelpers>(context, listen: false).WarningSheet(context, 'Please enter a name for your chatroom');
 
                   Provider.of<ChatroomUtils>(context, listen: false).uploadChatroomImage(context).whenComplete(() async
                   {
